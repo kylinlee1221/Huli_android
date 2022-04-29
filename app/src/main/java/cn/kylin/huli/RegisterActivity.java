@@ -70,7 +70,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     public class GetRegisterResultTask extends AsyncTask<String,Void,String>{
 
-        private String mRegisterUrl="http://huli.kylin1221.com/apis/register.php?username={0}&password={1}&fullname={2}&telephone={3}&role={4}&des={5}";
+        private String mRegisterUrl="https://huli.kylin1221.com/apis/register.php?username={0}&password={1}&fullname={2}&telephone={3}&role={4}&des={5}";
 
 
         @Override

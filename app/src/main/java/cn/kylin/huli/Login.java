@@ -121,7 +121,7 @@ public class Login extends AppCompatActivity {
         });
     }
     public class GetLoginResultTask extends AsyncTask<String,Void,String>{
-        private String mLoginUrl="http://huli.kylin1221.com/apis/login.php?username={0}&password={1}";
+        private String mLoginUrl="https://huli.kylin1221.com/apis/login.php?username={0}&password={1}";
         public JSONObject jsonObject=new JSONObject();
         //OnData
         @Override

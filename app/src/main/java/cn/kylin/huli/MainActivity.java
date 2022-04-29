@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         //UMConfigure.init(this,"6263de1a30a4f67780b312f7","Umeng",UMConfigure.DEVICE_TYPE_PHONE,"");
         ViewFlipper viewFlipper=findViewById(R.id.VF_NotifyBar2);
         Button loginBtn=findViewById(R.id.BT_login_test),registerBtn=findViewById(R.id.BT_register_test),checkInBtn=findViewById(R.id.BT_checkin_test),logoutBtn=findViewById(R.id.BT_logout_test);
+        Button checkOutBtn=findViewById(R.id.BT_checkout_test);
         loginBtn.setOnClickListener(click->{
             Intent intent=new Intent(this,Login.class);
             startActivity(intent);
@@ -107,6 +108,16 @@ public class MainActivity extends AppCompatActivity {
                 startCheckInTask.execute(sp.getString("userid","empty"));
             }
         });
+        checkOutBtn.setOnClickListener(click->{
+            String user_fullname1=sp.getString("fullname","empty").trim();
+            Log.e("full in out",user_fullname1);
+            if(user_fullname1.equals("empty")){
+                Toast.makeText(this,"You Should log in first",Toast.LENGTH_LONG).show();
+            }else{
+                StartCheckOutTask startCheckOutTask=new StartCheckOutTask();
+                startCheckOutTask.execute(sp.getString("userid","empty"));
+            }
+        });
         logoutBtn.setOnClickListener(click->{
             sp.edit()
                     .remove("fullname")
@@ -119,7 +130,52 @@ public class MainActivity extends AppCompatActivity {
 
     public class StartCheckInTask extends AsyncTask<String,Void,String> {
 
-        private String mCheckInUrl = "http://huli.kylin1221.com/apis/checkIn.php?userid={0}";
+        private String mCheckInUrl = "https://huli.kylin1221.com/apis/checkIn.php?userid={0}";
+
+        @Override
+        protected String doInBackground(String... strings) {
+            String[] params = strings[0].split("/");
+            String user = params[0];
+            Log.e("user", user);
+            String url = MessageFormat.format(mCheckInUrl, user);
+            Log.e("url", url);
+            StringBuffer buffer = new StringBuffer();
+            try {
+                URL url1 = new URL(url);
+                HttpURLConnection conn = (HttpURLConnection) url1.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setReadTimeout(5000);
+                try {
+                    conn.connect();
+                } catch (SocketTimeoutException e) {
+                    e.printStackTrace();
+                    return "timeout";
+                }
+                int rCode = conn.getResponseCode();
+                if (rCode == 200) {
+                    InputStreamReader reader = new InputStreamReader(conn.getInputStream());
+                    char[] charArr = new char[1024 * 8];
+                    int len = 0;
+                    while ((len = reader.read(charArr)) != -1) {
+                        // 字符数组转字符串
+                        String str = new String(charArr, 0, len);
+                        // 在结尾追加字符串
+                        buffer.append(str);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "error";
+            }
+            Log.e("result", buffer.toString());
+
+            return buffer.toString();
+        }
+    }
+
+    public class StartCheckOutTask extends AsyncTask<String,Void,String> {
+
+        private String mCheckInUrl = "https://huli.kylin1221.com/apis/checkOut.php?userid={0}";
 
         @Override
         protected String doInBackground(String... strings) {
@@ -164,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
 
     public class GetAnnouncementTask extends AsyncTask<String,Void,String>{
 
-        private String url="http://huli.kylin1221.com/apis/getAnnouncement.php";
+        private String url="https://huli.kylin1221.com/apis/getAnnouncement.php";
 
         @Override
         protected String doInBackground(String... strings) {
