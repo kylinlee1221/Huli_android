@@ -3,9 +3,13 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/activity_create_annoucement.xml" value="0.21354166666666666" />
         <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/activity_login.xml" value="0.1875" />
         <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/activity_main.xml" value="0.1875" />
         <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/activity_register.xml" value="0.18" />
+        <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/anim_marquee_in.xml" value="0.19479166666666667" />
+        <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/lines.xml" value="0.19895833333333332" />
+        <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/lines_two.xml" value="0.19895833333333332" />
       </map>
     </option>
   </component>

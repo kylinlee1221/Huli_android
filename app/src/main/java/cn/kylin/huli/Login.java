@@ -2,10 +2,13 @@ package cn.kylin.huli;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -39,6 +42,8 @@ public class Login extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         EditText usernameET=findViewById(R.id.ET_username_login),passwordET=findViewById(R.id.ET_password_login);
         Button loginBtn=findViewById(R.id.BT_login);
+        CheckBox rememberCB=findViewById(R.id.CB_remember_login);
+        SharedPreferences sharedPreferences=getSharedPreferences("login",MODE_PRIVATE);
         loginBtn.setOnClickListener(click->{
             String usernameST=usernameET.getText().toString(),passwordST=passwordET.getText().toString();
             if(usernameST.equals("")||passwordST.equals("")){
@@ -82,6 +87,29 @@ public class Login extends AppCompatActivity {
                             String des=jsonObject.getString("description");
                             Long id=jsonObject.getLong("id");
                             userList.add(new User(id,fullname,userid,telephone,role,des));
+                            if(rememberCB.isChecked()) {
+                                sharedPreferences.edit()
+                                        .putString("fullname", fullname)
+                                        .putString("userid", userid)
+                                        .putString("telephone", telephone)
+                                        .putString("role", role)
+                                        .putBoolean("checked",true).apply();
+                                Toast.makeText(this, "login success", Toast.LENGTH_LONG).show();
+                                Intent intent = new Intent(this, MainActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }else{
+                                sharedPreferences.edit()
+                                        .putString("fullname", fullname)
+                                        .putString("userid", userid)
+                                        .putString("telephone", telephone)
+                                        .putString("role", role)
+                                        .putBoolean("checked",false).apply();
+                                Toast.makeText(this, "login success", Toast.LENGTH_LONG).show();
+                                Intent intent = new Intent(this, MainActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }
                         }else if(jsonObject.getString("status").equals("2")){
                             Toast.makeText(this,"password error",Toast.LENGTH_LONG).show();
                         }

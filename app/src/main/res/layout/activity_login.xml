@@ -21,9 +21,16 @@
         android:hint="password"
         android:inputType="textPassword"/>
 
+    <CheckBox
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Remeber me"
+        android:id="@+id/CB_remember_login"/>
+
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="login"
         android:id="@+id/BT_login"/>
 
 </LinearLayout>

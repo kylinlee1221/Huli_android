@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Huli">
         <activity
+            android:name=".CreateAnnouncementActivity"
+            android:exported="false" />
+        <activity
             android:name=".RegisterActivity"
             android:exported="false" />
         <activity
