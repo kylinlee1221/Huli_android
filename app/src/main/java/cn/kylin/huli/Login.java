@@ -93,6 +93,7 @@ public class Login extends AppCompatActivity {
                                         .putString("userid", userid)
                                         .putString("telephone", telephone)
                                         .putString("role", role)
+                                        .putLong("id",id)
                                         .putBoolean("checked",true).apply();
                                 Toast.makeText(this, "login success", Toast.LENGTH_LONG).show();
                                 Intent intent = new Intent(this, MainActivity.class);
@@ -104,6 +105,7 @@ public class Login extends AppCompatActivity {
                                         .putString("userid", userid)
                                         .putString("telephone", telephone)
                                         .putString("role", role)
+                                        .putLong("id",id)
                                         .putBoolean("checked",false).apply();
                                 Toast.makeText(this, "login success", Toast.LENGTH_LONG).show();
                                 Intent intent = new Intent(this, MainActivity.class);

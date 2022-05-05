@@ -11,13 +11,38 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="announcement"
+        android:id="@+id/ET_announcement_Announ"
         android:inputType="text"
         android:maxLength="255"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Announcement end date:"/>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/BT_DateChooser_Announ"
+            android:layout_weight="2"
+            android:text="chose date"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:id="@+id/BT_TimeChooser_Announ"
+            android:text="chose time"/>
+    </LinearLayout>
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/BT_TimeChooser_Announ"
-        android:text="chose time"/>
+        android:id="@+id/BT_AddAnnouncement_Announ"
+        android:text="add"/>
 
 </LinearLayout>

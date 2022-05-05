@@ -17,6 +17,19 @@ public class User {
         this.role=role;
         this.description=description;
     }
+    public User(Long id,String fullname,String telephone){
+        this.id=id;
+        this.fullname=fullname;
+        this.telephone=telephone;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getDescription() {
         return description;

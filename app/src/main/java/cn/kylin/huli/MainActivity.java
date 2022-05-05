@@ -20,6 +20,7 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.umeng.commonsdk.UMConfigure;
+import com.umeng.commonsdk.debug.I;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,7 +31,11 @@ import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -41,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     BulletinView bulletinView;
     HomeAdapter adapter;
     List<String> infoList=new ArrayList<String>();
+    private int day,month,year,hour,minute,second;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +55,9 @@ public class MainActivity extends AppCompatActivity {
         //UMConfigure.init(this,"6263de1a30a4f67780b312f7","Umeng",UMConfigure.DEVICE_TYPE_PHONE,"");
         ViewFlipper viewFlipper=findViewById(R.id.VF_NotifyBar2);
         Button loginBtn=findViewById(R.id.BT_login_test),registerBtn=findViewById(R.id.BT_register_test),checkInBtn=findViewById(R.id.BT_checkin_test),logoutBtn=findViewById(R.id.BT_logout_test);
-        Button checkOutBtn=findViewById(R.id.BT_checkout_test);
+        Button checkOutBtn=findViewById(R.id.BT_checkout_test),addOrderBtn=findViewById(R.id.BT_addOrder_test),addAnnouncementBtn=findViewById(R.id.BT_addAnnouncement_test);
+        Button orderMarketBtn=findViewById(R.id.BT_OrderMarket_test);
+        getDateTime();
         loginBtn.setOnClickListener(click->{
             Intent intent=new Intent(this,Login.class);
             startActivity(intent);
@@ -95,6 +103,8 @@ public class MainActivity extends AppCompatActivity {
         //sleep(5000);
         SharedPreferences sp=getSharedPreferences("login",MODE_PRIVATE);
         String user_fullname=sp.getString("fullname","empty");
+        Long userid=sp.getLong("id",-1);
+        Log.e("userid",String.valueOf(userid));
         if(!user_fullname.equals("empty")){
             Log.e("fullname",user_fullname);
         }
@@ -118,12 +128,51 @@ public class MainActivity extends AppCompatActivity {
                 startCheckOutTask.execute(sp.getString("userid","empty"));
             }
         });
+        addOrderBtn.setOnClickListener(click->{
+            String user_fullname1=sp.getString("fullname","empty").trim();
+            String user_role=sp.getString("role","empty").trim();
+            if(user_fullname1.equals("empty")){
+                Toast.makeText(this,"You Should log in first",Toast.LENGTH_LONG).show();
+            }else{
+                if(user_role.equals("1")){
+                    Intent intent=new Intent(this,AddOrderActivity.class);
+                    startActivity(intent);
+                }else{
+                    Toast.makeText(this,"You are not administrator",Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+        addAnnouncementBtn.setOnClickListener(click->{
+            String user_fullname1=sp.getString("fullname","empty").trim();
+            String user_role=sp.getString("role","empty").trim();
+            if(user_fullname1.equals("empty")){
+                Toast.makeText(this,"You Should log in first",Toast.LENGTH_LONG).show();
+            }else{
+                if(user_role.equals("1")){
+                    Intent intent=new Intent(this,CreateAnnouncementActivity.class);
+                    startActivity(intent);
+                }else{
+                    Toast.makeText(this,"You are not administrator",Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+        orderMarketBtn.setOnClickListener(click->{
+            String user_fullname1=sp.getString("fullname","empty").trim();
+            Log.e("full in out",user_fullname1);
+            if(user_fullname1.equals("empty")){
+                Toast.makeText(this,"You Should log in first",Toast.LENGTH_LONG).show();
+            }else{
+                Intent intent=new Intent(this,OrderMarketActivity.class);
+                startActivity(intent);
+            }
+        });
         logoutBtn.setOnClickListener(click->{
             sp.edit()
                     .remove("fullname")
                     .remove("userid")
                     .remove("telephone")
                     .remove("role")
+                    .remove("id")
                     .remove("checked").apply();
         });
     }
@@ -264,11 +313,45 @@ public class MainActivity extends AppCompatActivity {
             JSONArray jsonArray=new JSONArray(result);
             for (int i=0;i<jsonArray.length();i++){
                 JSONObject jsonObject=jsonArray.getJSONObject(i);
-                infoList.add(jsonObject.getString("info"));
+                SimpleDateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                Date date1=dateFormat.parse(jsonObject.getString("endtime"));
+                String nowDate=String.valueOf(year)+"-"+String.valueOf(month)+"-"+String.valueOf(day)+" "+String.valueOf(hour)+":"+String.valueOf(minute);
+                Log.e("nowDate",nowDate);
+                Date date2=dateFormat.parse(nowDate);
+                if(date2.getTime()<date1.getTime()){
+                    infoList.add(jsonObject.getString("info"));
+                    Log.e("time1",date1.toString());
+                    Log.e("time2",date2.toString());
+                }
             }
         }catch (JSONException e){
             e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
+    }
+
+    public void getDateTime(){
+        Calendar calendar = Calendar.getInstance();//取得当前时间的年月日 时分秒
+
+
+        year = calendar.get(Calendar.YEAR);
+
+
+        month = calendar.get(Calendar.MONTH)+1;
+
+
+        day = calendar.get(Calendar.DAY_OF_MONTH);
+
+
+        hour = calendar.get(Calendar.HOUR_OF_DAY);
+
+
+        minute = calendar.get(Calendar.MINUTE);
+
+
+        second = calendar.get(Calendar.SECOND);
+
     }
 
     private TextView getTextView(String keyword) {
@@ -291,6 +374,7 @@ public class MainActivity extends AppCompatActivity {
                     .remove("userid")
                     .remove("telephone")
                     .remove("role")
+                    .remove("id")
                     .remove("checked").apply();
         }
     }
@@ -304,6 +388,7 @@ public class MainActivity extends AppCompatActivity {
                     .remove("userid")
                     .remove("telephone")
                     .remove("role")
+                    .remove("id")
                     .remove("checked").apply();
         }
         super.onDestroy();

@@ -42,6 +42,24 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/BT_addOrder_test"
+        android:text="add order(test)"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/BT_addAnnouncement_test"
+        android:text="add announcement(test)"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/BT_OrderMarket_test"
+        android:text="order market(test)"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:id="@+id/BT_logout_test"
         android:text="logout(test)"/>
 </LinearLayout>

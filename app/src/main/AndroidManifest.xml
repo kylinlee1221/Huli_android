@@ -16,6 +16,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Huli">
         <activity
+            android:name=".OrderMarketActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AddOrderActivity"
+            android:exported="false" />
+        <activity
             android:name=".CreateAnnouncementActivity"
             android:exported="false" />
         <activity
@@ -31,13 +37,6 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="um.6263de1a30a4f67780b312f7" />
             </intent-filter>
         </activity>
     </application>
