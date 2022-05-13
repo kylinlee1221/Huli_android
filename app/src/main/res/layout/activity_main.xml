@@ -60,6 +60,18 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/BT_AnManaget_test"
+        android:text="announcement manage(test"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/BT_OrderManage_test"
+        android:text="order manage(test)"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:id="@+id/BT_logout_test"
         android:text="logout(test)"/>
 </LinearLayout>

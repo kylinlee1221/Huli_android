@@ -16,6 +16,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Huli">
         <activity
+            android:name=".OrderManageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AnnounceManageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MyOrderActivity"
+            android:exported="false" />
+        <activity
             android:name=".OrderMarketActivity"
             android:exported="false" />
         <activity

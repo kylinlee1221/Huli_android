@@ -5,28 +5,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".OrderMarketActivity">
+    tools:context=".AnnounceManageActivity">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/TV_orderHint_Market"
+        android:id="@+id/TV_Hint_AManage"
         android:text="hint"
         android:textAlignment="center"/>
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/swiperefresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/SW_OrderM">
+        android:layout_height="match_parent">
+
         <ListView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/LV_orderList_Market"
+            android:id="@+id/LV_AList_Amanage"
             android:fadingEdge="none"
             android:transcriptMode="alwaysScroll"/>
+
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-
 
 
 </LinearLayout>

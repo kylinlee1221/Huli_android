@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
         ViewFlipper viewFlipper=findViewById(R.id.VF_NotifyBar2);
         Button loginBtn=findViewById(R.id.BT_login_test),registerBtn=findViewById(R.id.BT_register_test),checkInBtn=findViewById(R.id.BT_checkin_test),logoutBtn=findViewById(R.id.BT_logout_test);
         Button checkOutBtn=findViewById(R.id.BT_checkout_test),addOrderBtn=findViewById(R.id.BT_addOrder_test),addAnnouncementBtn=findViewById(R.id.BT_addAnnouncement_test);
-        Button orderMarketBtn=findViewById(R.id.BT_OrderMarket_test);
+        Button orderMarketBtn=findViewById(R.id.BT_OrderMarket_test),anManageBtn=findViewById(R.id.BT_AnManaget_test),oManageBtn=findViewById(R.id.BT_OrderManage_test);
         getDateTime();
         loginBtn.setOnClickListener(click->{
             Intent intent=new Intent(this,Login.class);
@@ -164,6 +164,36 @@ public class MainActivity extends AppCompatActivity {
             }else{
                 Intent intent=new Intent(this,OrderMarketActivity.class);
                 startActivity(intent);
+            }
+        });
+        anManageBtn.setOnClickListener(click->{
+            String user_fullname1=sp.getString("fullname","empty").trim();
+            String user_role=sp.getString("role","empty").trim();
+            Log.e("full in out",user_fullname1);
+            if(user_fullname1.equals("empty")){
+                Toast.makeText(this,"You Should log in first",Toast.LENGTH_LONG).show();
+            }else{
+                    if(user_role.equals("1")){
+                        Intent intent=new Intent(this,AnnounceManageActivity.class);
+                        startActivity(intent);
+                    }else{
+                        Toast.makeText(this,"You are not administrator",Toast.LENGTH_LONG).show();
+                    }
+            }
+        });
+        oManageBtn.setOnClickListener(click->{
+            String user_fullname1=sp.getString("fullname","empty").trim();
+            String user_role=sp.getString("role","empty").trim();
+            Log.e("full in out",user_fullname1);
+            if(user_fullname1.equals("empty")){
+                Toast.makeText(this,"You Should log in first",Toast.LENGTH_LONG).show();
+            }else{
+                if(user_role.equals("1")){
+                    Intent intent=new Intent(this,OrderManageActivity.class);
+                    startActivity(intent);
+                }else{
+                    Toast.makeText(this,"You are not administrator",Toast.LENGTH_LONG).show();
+                }
             }
         });
         logoutBtn.setOnClickListener(click->{

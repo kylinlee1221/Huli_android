@@ -6,7 +6,19 @@ public class Order {
     private String orderplace;
     private Double orderpaid;
     private String orderDate;
+    private String orderStatus;
     private Long id;
+
+    public Order(Long id,String ordername,String orderplace,String orderDate,Double orderprice,Double orderpaid,String orderStatus){
+        this.id=id;
+        this.ordername=ordername;
+        this.orderplace=orderplace;
+        this.orderDate=orderDate;
+        this.orderprice=orderprice;
+        this.orderpaid=orderpaid;
+        this.orderStatus=orderStatus;
+    }
+
     public Order(Long id,String ordername,String orderplace,String orderDate,Double orderprice,Double orderpaid){
         this.id=id;
         this.ordername=ordername;
@@ -14,6 +26,14 @@ public class Order {
         this.orderDate=orderDate;
         this.orderprice=orderprice;
         this.orderpaid=orderpaid;
+    }
+
+    public String getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(String orderStatus) {
+        this.orderStatus = orderStatus;
     }
 
     public void setId(Long id) {
@@ -64,4 +84,15 @@ public class Order {
         this.orderprice = orderprice;
     }
 
+    @Override
+    public String toString() {
+        return "Order{" +
+                "ordername='" + ordername + '\'' +
+                ", orderprice=" + orderprice +
+                ", orderplace='" + orderplace + '\'' +
+                ", orderpaid=" + orderpaid +
+                ", orderDate='" + orderDate + '\'' +
+                ", id=" + id +
+                '}';
+    }
 }
