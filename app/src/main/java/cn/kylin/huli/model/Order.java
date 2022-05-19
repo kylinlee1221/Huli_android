@@ -6,8 +6,33 @@ public class Order {
     private String orderplace;
     private Double orderpaid;
     private String orderDate;
+    private String orderStart;
     private String orderStatus;
+    private String orderPhone;
     private Long id;
+
+    public Order(Long id,String ordername,String orderplace,String orderDate,String orderStart,Double orderprice,Double orderpaid,String orderStatus,String orderPhone){
+        this.id=id;
+        this.ordername=ordername;
+        this.orderplace=orderplace;
+        this.orderDate=orderDate;
+        this.orderprice=orderprice;
+        this.orderStart=orderStart;
+        this.orderpaid=orderpaid;
+        this.orderStatus=orderStatus;
+        this.orderPhone=orderPhone;
+    }
+
+    public Order(Long id,String ordername,String orderplace,String orderDate,Double orderprice,Double orderpaid,String orderStatus,String orderPhone){
+        this.id=id;
+        this.ordername=ordername;
+        this.orderplace=orderplace;
+        this.orderDate=orderDate;
+        this.orderprice=orderprice;
+        this.orderpaid=orderpaid;
+        this.orderStatus=orderStatus;
+        this.orderPhone=orderPhone;
+    }
 
     public Order(Long id,String ordername,String orderplace,String orderDate,Double orderprice,Double orderpaid,String orderStatus){
         this.id=id;
@@ -26,6 +51,33 @@ public class Order {
         this.orderDate=orderDate;
         this.orderprice=orderprice;
         this.orderpaid=orderpaid;
+    }
+
+    public Order(Long id, String ordername, String orderplace, String orderend, String orderStart, Double orderprice, Double orderpaid, String orderStatus) {
+        this.id=id;
+        this.ordername=ordername;
+        this.orderplace=orderplace;
+        this.orderDate=orderend;
+        this.orderStart=orderStart;
+        this.orderprice=orderprice;
+        this.orderpaid=orderpaid;
+        this.orderStatus=orderStatus;
+    }
+
+    public String getOrderStart() {
+        return orderStart;
+    }
+
+    public void setOrderStart(String orderStart) {
+        this.orderStart = orderStart;
+    }
+
+    public String getOrderPhone() {
+        return orderPhone;
+    }
+
+    public void setOrderPhone(String orderPhone) {
+        this.orderPhone = orderPhone;
     }
 
     public String getOrderStatus() {

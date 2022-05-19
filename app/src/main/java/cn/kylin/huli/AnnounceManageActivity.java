@@ -4,6 +4,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -48,6 +51,7 @@ public class AnnounceManageActivity extends AppCompatActivity {
         TextView hintTV=findViewById(R.id.TV_Hint_AManage);
         ListView anList=findViewById(R.id.LV_AList_Amanage);
         SwipeRefreshLayout swipeRefreshLayout=findViewById(R.id.swiperefresh);
+        Button addButton=findViewById(R.id.BT_addAnnouncement_Manage);
         getDateTime();
         GetAnnouncementTask getAnnouncementTask=new GetAnnouncementTask();
         getAnnouncementTask.execute("gogogo");
@@ -177,6 +181,11 @@ public class AnnounceManageActivity extends AppCompatActivity {
                 }
             }).create().show();
             return true;
+        });
+        addButton.setOnClickListener(click->{
+            Intent intent=new Intent(AnnounceManageActivity.this,CreateAnnouncementActivity.class);
+            startActivity(intent);
+            finish();
         });
     }
 
@@ -368,17 +377,18 @@ public class AnnounceManageActivity extends AppCompatActivity {
             return i;
         }
 
+        @SuppressLint("SetTextI18n")
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
             LayoutInflater inflater=getLayoutInflater();
             View rowView;
             TextView rowMessage;
             Announcement thisRow=getItem(i);
-            rowView=inflater.inflate(R.layout.show_list_resource,viewGroup,false);
-            rowMessage=rowView.findViewById(R.id.info_text_view);
-            rowMessage.setText(thisRow.getInfo()+"\n"+thisRow.getEndtime()+"\n");
+            rowView=inflater.inflate(R.layout.show_announce_view,viewGroup,false);
+            rowMessage=rowView.findViewById(R.id.info_text_view2);
+            rowMessage.setText(getResources().getString(R.string.announce_info_detail)+thisRow.getInfo()+"\n"+getResources().getString(R.string.order_end_detail)+thisRow.getEndtime()+"\n");
             rowMessage.setTextColor(Color.BLACK);
-            rowMessage.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            rowMessage.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
             return rowView;
         }
     }

@@ -28,6 +28,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Pattern;
 
 import cn.kylin.huli.model.User;
 
@@ -42,8 +43,9 @@ public class AddOrderActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_order);
         Spinner userSP=findViewById(R.id.SP_userChose_Add);
         EditText orderNameET=findViewById(R.id.ET_name_Add),moneyET=findViewById(R.id.ET_money_Add),paidET=findViewById(R.id.ET_alreadyPay_Add),placeET=findViewById(R.id.ET_place_Add);
-        EditText deatisET=findViewById(R.id.ET_place_details_Add);
+        EditText deatisET=findViewById(R.id.ET_place_details_Add),phoneET=findViewById(R.id.ET_customerPhone_Add);
         Button dateChoser=findViewById(R.id.BT_DateChooser_Add),timeChoser=findViewById(R.id.BT_TimeChooser_Add),createOrderBtn=findViewById(R.id.BT_addOrder_Add);
+        Button BeginDateChoser=findViewById(R.id.BT_DateChooser_start_Add),BeginTimeChoser=findViewById(R.id.BT_TimeChooser_start_Add);
         ArrayList<User> userArrayList=new ArrayList<User>();
         getDateTime();
         userList.add("all");
@@ -97,20 +99,46 @@ public class AddOrderActivity extends AppCompatActivity {
             TimePickerDialog timePickerDialog=new TimePickerDialog(this,timeListener,hour,minute,true);
             timePickerDialog.show();
         });
+        BeginDateChoser.setOnClickListener(click->{
+            final String[] timeChosed = {""};
+            DatePickerDialog.OnDateSetListener listener=new DatePickerDialog.OnDateSetListener() {
+                @Override
+                public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+                    BeginDateChoser.setText(String.valueOf(i)+"-"+String.valueOf((++i1))+"-"+String.valueOf(i2));
+                }
+            };
+
+            DatePickerDialog datePickerDialog=new DatePickerDialog(this,0,listener,year,month,day);
+            datePickerDialog.show();
+
+            Log.e("time",timeChosed[0]);
+            BeginDateChoser.setText(timeChosed[0]);
+        });
+        BeginTimeChoser.setOnClickListener(click->{
+            final String[] timeChosed = {""};
+            TimePickerDialog.OnTimeSetListener timeListener=new TimePickerDialog.OnTimeSetListener() {
+                @Override
+                public void onTimeSet(TimePicker timePicker, int i, int i1) {
+                    BeginTimeChoser.setText(String.valueOf(i)+":"+String.valueOf((i1)));
+                }
+            };
+            TimePickerDialog timePickerDialog=new TimePickerDialog(this,timeListener,hour,minute,true);
+            timePickerDialog.show();
+        });
         SharedPreferences sp=getSharedPreferences("login",MODE_PRIVATE);
         Long userid=sp.getLong("id",-1);
         Log.e("uid",String.valueOf(userid));
         createOrderBtn.setOnClickListener(click->{
             String nameST=orderNameET.getText().toString(),moneyST=moneyET.getText().toString(),paidST=paidET.getText().toString(),placeST=placeET.getText().toString(),details=deatisET.getText().toString();
-            String time=dateChoser.getText().toString()+" "+timeChoser.getText().toString();
+            String time=dateChoser.getText().toString()+" "+timeChoser.getText().toString(),phoneST=phoneET.getText().toString(),beginTime=BeginDateChoser.getText().toString()+" "+BeginTimeChoser.getText().toString();
             Long toid = null;
             for(User user:userArrayList){
                 if(user.getFullname().equals(userSP.getSelectedItem())){
                     toid=user.getId();
                 }
             }
-            if(userid>=0){
-                String params=nameST+"/"+moneyST+"/"+paidST+"/"+String.valueOf(userid)+"/"+String.valueOf(toid)+"/"+time+"/"+placeST+"/"+details+"/";
+            if(userid>=0&&matchPhoneNumber(phoneST)){
+                String params=nameST+"/"+moneyST+"/"+paidST+"/"+String.valueOf(userid)+"/"+String.valueOf(toid)+"/"+time+"/"+beginTime+"/"+placeST+"/"+details+"/"+phoneST;
                 AddOrderTask addOrderTask=new AddOrderTask();
                 addOrderTask.execute(params);
                 try {
@@ -169,7 +197,7 @@ public class AddOrderActivity extends AppCompatActivity {
     }
 
     public class AddOrderTask extends AsyncTask<String,Void,String>{
-        private String mUrl="https://huli.kylin1221.com/apis/addOrder.php?name={0}&price={1}&paid={2}&sendby={3}&sendto={4}&orderdate={5}&place={6}&details={7}";
+        private String mUrl="https://huli.kylin1221.com/apis/addOrder.php?name={0}&price={1}&paid={2}&sendby={3}&sendto={4}&orderdate={5}&orderstart={6}&place={7}&details={8}&phone={9}";
 
         @Override
         protected String doInBackground(String... strings) {
@@ -180,9 +208,11 @@ public class AddOrderActivity extends AppCompatActivity {
             String sendby= params[3];
             String sendto=params[4];
             String orderdate=params[5];
-            String place=params[6];
-            String details=params[7];
-            String url = MessageFormat.format(mUrl, name,price,paid,sendby,sendto,orderdate,place,details);
+            String orderStart=params[6];
+            String place=params[7];
+            String details=params[8];
+            String phone=params[9];
+            String url = MessageFormat.format(mUrl, name,price,paid,sendby,sendto,orderdate,orderStart,place,details,phone);
             StringBuffer buffer=new StringBuffer();
             Log.e("url", url);
             try{
@@ -239,6 +269,14 @@ public class AddOrderActivity extends AppCompatActivity {
 
         second = calendar.get(Calendar.SECOND);
 
+    }
+
+    private static boolean matchPhoneNumber(String phoneNumber) {
+        String regex = "^1\\d{10}$";
+        if(phoneNumber==null||phoneNumber.length()<=0){
+            return false;
+        }
+        return Pattern.matches(regex, phoneNumber);
     }
 
     public void insertIntoData(String result){

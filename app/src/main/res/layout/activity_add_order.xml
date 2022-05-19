@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/ET_name_Add"
-        android:hint="name"
+        android:hint="@string/order_name_hint"
         android:inputType="text"
         android:maxLength="255"/>
 
@@ -20,19 +20,19 @@
         android:layout_height="wrap_content"
         android:id="@+id/ET_money_Add"
         android:inputType="numberDecimal"
-        android:hint="order money"/>
+        android:hint="@string/order_money_hint"/>
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/ET_alreadyPay_Add"
-        android:hint="already paid"
+        android:hint="@string/order_paid_hint"
         android:inputType="numberDecimal"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Send to:"/>
+        android:text="@string/order_send_hint"/>
 
     <Spinner
         android:layout_width="match_parent"
@@ -45,7 +45,30 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Order end date:"/>
+        android:text="@string/order_start_hint"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/BT_DateChooser_start_Add"
+            android:layout_weight="2"
+            android:text="@string/date_chose_btn"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:id="@+id/BT_TimeChooser_start_Add"
+            android:text="@string/time_chose_btn"/>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/order_end_hint"/>
 
 
     <LinearLayout
@@ -57,13 +80,13 @@
             android:layout_height="wrap_content"
             android:id="@+id/BT_DateChooser_Add"
             android:layout_weight="2"
-            android:text="chose date"/>
+            android:text="@string/date_chose_btn"/>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:id="@+id/BT_TimeChooser_Add"
-            android:text="chose time"/>
+            android:text="@string/time_chose_btn"/>
     </LinearLayout>
 
     <EditText
@@ -71,20 +94,27 @@
         android:layout_height="wrap_content"
         android:id="@+id/ET_place_Add"
         android:inputType="text"
-        android:hint="order place"/>
+        android:hint="@string/order_place_hint"/>
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/ET_place_details_Add"
         android:inputType="text"
-        android:hint="order place details"/>
+        android:hint="@string/order_place_detail_hint"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/ET_customerPhone_Add"
+        android:inputType="phone"
+        android:hint="@string/order_phone_hint"/>
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/BT_addOrder_Add"
-        android:text="Add order"/>
+        android:text="@string/add_order_btn"/>
 
 
 </LinearLayout>

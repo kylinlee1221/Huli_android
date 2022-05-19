@@ -13,8 +13,12 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -54,18 +58,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         //UMConfigure.init(this,"6263de1a30a4f67780b312f7","Umeng",UMConfigure.DEVICE_TYPE_PHONE,"");
         ViewFlipper viewFlipper=findViewById(R.id.VF_NotifyBar2);
-        Button loginBtn=findViewById(R.id.BT_login_test),registerBtn=findViewById(R.id.BT_register_test),checkInBtn=findViewById(R.id.BT_checkin_test),logoutBtn=findViewById(R.id.BT_logout_test);
-        Button checkOutBtn=findViewById(R.id.BT_checkout_test),addOrderBtn=findViewById(R.id.BT_addOrder_test),addAnnouncementBtn=findViewById(R.id.BT_addAnnouncement_test);
-        Button orderMarketBtn=findViewById(R.id.BT_OrderMarket_test),anManageBtn=findViewById(R.id.BT_AnManaget_test),oManageBtn=findViewById(R.id.BT_OrderManage_test);
+        RadioButton myInfoBtn=findViewById(R.id.RB_myInfo_Main);
+        ImageButton closeAnnouncement=findViewById(R.id.IB_closeAnnouncement_Main),orderMarketBtn=findViewById(R.id.IB_orderMarket_Main),myOrderBtn=findViewById(R.id.IB_myOrder_Main);
+        LinearLayout announceLayout=findViewById(R.id.LL_Announce_Main);
+        closeAnnouncement.setOnClickListener(click->{
+            announceLayout.setVisibility(View.GONE);
+        });
         getDateTime();
-        loginBtn.setOnClickListener(click->{
-            Intent intent=new Intent(this,Login.class);
-            startActivity(intent);
-        });
-        registerBtn.setOnClickListener(click->{
-            Intent intent=new Intent(this,RegisterActivity.class);
-            startActivity(intent);
-        });
         GetAnnouncementTask getAnnouncementTask=new GetAnnouncementTask();
         getAnnouncementTask.execute("abc");
         String result="";
@@ -98,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        AsyncTask.Status status=getAnnouncementTask.getStatus();
+        //AsyncTask.Status status=getAnnouncementTask.getStatus();
         //if (status.)
         //sleep(5000);
         SharedPreferences sp=getSharedPreferences("login",MODE_PRIVATE);
@@ -108,54 +107,6 @@ public class MainActivity extends AppCompatActivity {
         if(!user_fullname.equals("empty")){
             Log.e("fullname",user_fullname);
         }
-        checkInBtn.setOnClickListener(click->{
-            String user_fullname1=sp.getString("fullname","empty").trim();
-            Log.e("full in checkin",user_fullname1);
-            if(user_fullname1.equals("empty")){
-                Toast.makeText(this,"You Should log in first",Toast.LENGTH_LONG).show();
-            }else{
-                StartCheckInTask startCheckInTask=new StartCheckInTask();
-                startCheckInTask.execute(sp.getString("userid","empty"));
-            }
-        });
-        checkOutBtn.setOnClickListener(click->{
-            String user_fullname1=sp.getString("fullname","empty").trim();
-            Log.e("full in out",user_fullname1);
-            if(user_fullname1.equals("empty")){
-                Toast.makeText(this,"You Should log in first",Toast.LENGTH_LONG).show();
-            }else{
-                StartCheckOutTask startCheckOutTask=new StartCheckOutTask();
-                startCheckOutTask.execute(sp.getString("userid","empty"));
-            }
-        });
-        addOrderBtn.setOnClickListener(click->{
-            String user_fullname1=sp.getString("fullname","empty").trim();
-            String user_role=sp.getString("role","empty").trim();
-            if(user_fullname1.equals("empty")){
-                Toast.makeText(this,"You Should log in first",Toast.LENGTH_LONG).show();
-            }else{
-                if(user_role.equals("1")){
-                    Intent intent=new Intent(this,AddOrderActivity.class);
-                    startActivity(intent);
-                }else{
-                    Toast.makeText(this,"You are not administrator",Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-        addAnnouncementBtn.setOnClickListener(click->{
-            String user_fullname1=sp.getString("fullname","empty").trim();
-            String user_role=sp.getString("role","empty").trim();
-            if(user_fullname1.equals("empty")){
-                Toast.makeText(this,"You Should log in first",Toast.LENGTH_LONG).show();
-            }else{
-                if(user_role.equals("1")){
-                    Intent intent=new Intent(this,CreateAnnouncementActivity.class);
-                    startActivity(intent);
-                }else{
-                    Toast.makeText(this,"You are not administrator",Toast.LENGTH_LONG).show();
-                }
-            }
-        });
         orderMarketBtn.setOnClickListener(click->{
             String user_fullname1=sp.getString("fullname","empty").trim();
             Log.e("full in out",user_fullname1);
@@ -166,44 +117,19 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        anManageBtn.setOnClickListener(click->{
+        myOrderBtn.setOnClickListener(click->{
             String user_fullname1=sp.getString("fullname","empty").trim();
-            String user_role=sp.getString("role","empty").trim();
             Log.e("full in out",user_fullname1);
             if(user_fullname1.equals("empty")){
                 Toast.makeText(this,"You Should log in first",Toast.LENGTH_LONG).show();
             }else{
-                    if(user_role.equals("1")){
-                        Intent intent=new Intent(this,AnnounceManageActivity.class);
-                        startActivity(intent);
-                    }else{
-                        Toast.makeText(this,"You are not administrator",Toast.LENGTH_LONG).show();
-                    }
+                Intent intent=new Intent(this,MyOrderActivity.class);
+                startActivity(intent);
             }
         });
-        oManageBtn.setOnClickListener(click->{
-            String user_fullname1=sp.getString("fullname","empty").trim();
-            String user_role=sp.getString("role","empty").trim();
-            Log.e("full in out",user_fullname1);
-            if(user_fullname1.equals("empty")){
-                Toast.makeText(this,"You Should log in first",Toast.LENGTH_LONG).show();
-            }else{
-                if(user_role.equals("1")){
-                    Intent intent=new Intent(this,OrderManageActivity.class);
-                    startActivity(intent);
-                }else{
-                    Toast.makeText(this,"You are not administrator",Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-        logoutBtn.setOnClickListener(click->{
-            sp.edit()
-                    .remove("fullname")
-                    .remove("userid")
-                    .remove("telephone")
-                    .remove("role")
-                    .remove("id")
-                    .remove("checked").apply();
+        myInfoBtn.setOnClickListener(click->{
+            Intent intent=new Intent(this,MyInfoActivity.class);
+            startActivity(intent);
         });
     }
 
@@ -390,6 +316,7 @@ public class MainActivity extends AppCompatActivity {
         textView.setTextColor(Color.parseColor("#666666"));
         textView.setMaxLines(1);
         textView.setText(keyword);
+        textView.setGravity(Gravity.CENTER_VERTICAL);
         return textView;
     }
 
@@ -422,5 +349,11 @@ public class MainActivity extends AppCompatActivity {
                     .remove("checked").apply();
         }
         super.onDestroy();
+    }
+
+    @Override
+    protected void onStart() {
+
+        super.onStart();
     }
 }

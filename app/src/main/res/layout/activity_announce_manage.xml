@@ -18,6 +18,7 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/swiperefresh"
         android:layout_width="match_parent"
+        android:layout_weight="18"
         android:layout_height="match_parent">
 
         <ListView
@@ -28,6 +29,13 @@
             android:transcriptMode="alwaysScroll"/>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/BT_addAnnouncement_Manage"
+        android:layout_gravity="bottom"
+        android:text="@string/add_announcement_btn"/>
 
 
 </LinearLayout>

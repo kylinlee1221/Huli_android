@@ -11,26 +11,39 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/ET_username_login"
-        android:hint="username"
+        android:hint="@string/username_input_login_hint"
         android:inputType="text"/>
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/ET_password_login"
-        android:hint="password"
+        android:hint="@string/password_input_hint"
         android:inputType="textPassword"/>
 
     <CheckBox
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Remeber me"
+        android:text="@string/remember_login_hint"
         android:id="@+id/CB_remember_login"/>
 
-    <Button
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="login"
-        android:id="@+id/BT_login"/>
+        android:orientation="horizontal">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/log_in_btn"
+            android:layout_weight="4"
+            android:id="@+id/BT_login"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/register_btn"
+            android:layout_weight="1"
+            android:id="@+id/BT_register"/>
+    </LinearLayout>
+
 
 </LinearLayout>

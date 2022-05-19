@@ -29,6 +29,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CreateAnnouncementActivity extends AppCompatActivity {
     //TimePicker pvTime;
@@ -72,7 +74,7 @@ public class CreateAnnouncementActivity extends AppCompatActivity {
         Long userid=sp.getLong("id",-1);
         Log.e("uid",String.valueOf(userid));
         addBtn.setOnClickListener(click->{
-            if(!announET.getText().toString().equals("")){
+            if(!announET.getText().toString().equals("")&&injectSqlChecker(announET.getText().toString())){
                 CreateAnnouncementTask createAnnouncementTask=new CreateAnnouncementTask();
                 String params=String.valueOf(userid)+"/"+announET.getText().toString()+"/"+dateChoser.getText().toString()+" "+timeChoser.getText().toString();
                 createAnnouncementTask.execute(params);
@@ -183,5 +185,18 @@ public class CreateAnnouncementActivity extends AppCompatActivity {
 
         second = calendar.get(Calendar.SECOND);
 
+    }
+    private static boolean injectSqlChecker(String input){
+        String reg = "(?:')|(?:--)|(/\\*(?:.|[\\n\\r])*?\\*/)|"
+                + "(\\b(select|update|and|or|delete|insert|trancate|char|into|substr|ascii|declare|exec|count|master|into|drop|execute)\\b)";
+        Pattern sqlPattern=Pattern.compile(reg,Pattern.CASE_INSENSITIVE);
+        if(input==null||input.length()<=0){
+            return false;
+        }
+        Matcher matcher=sqlPattern.matcher(input);
+        if(matcher.find()){
+            return false;
+        }
+        return true;
     }
 }

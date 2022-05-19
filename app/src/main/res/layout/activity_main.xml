@@ -9,69 +9,84 @@
     tools:context=".MainActivity">
 
 
-
-    <ViewFlipper
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/VF_NotifyBar2"/>
+        android:background="@android:color/holo_blue_bright"
+        android:id="@+id/LL_Announce_Main"
+        android:orientation="horizontal">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/IV_announcementLogo_Main"
+            android:src="@drawable/announcement"
+            android:layout_weight="2"/>
+        <ViewFlipper
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/VF_NotifyBar2"
+            android:layout_weight="9"/>
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/IB_closeAnnouncement_Main"
+            android:layout_weight="2"
+            android:background="@android:color/transparent"
+            android:src="@drawable/close"/>
 
-    <Button
+    </LinearLayout>
+
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/BT_login_test"
-        android:text="login(test)"/>
+        android:layout_weight="9"
+        android:orientation="horizontal">
+        
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/order"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:layout_gravity="center_vertical"
+            android:id="@+id/IB_myOrder_Main"/>
 
-    <Button
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/order_market"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:layout_gravity="center_vertical"
+            android:id="@+id/IB_orderMarket_Main"/>
+
+
+        
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/BT_register_test"
-        android:text="register(test)"/>
+        android:orientation="vertical"
+        android:layout_gravity="bottom">
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/RG_bottomButton_main"
+            android:orientation="horizontal">
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/BT_checkin_test"
-        android:text="check in(test)"/>
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:drawableTop="@drawable/male_small"
+                android:button="@null"
+                android:id="@+id/RB_myInfo_Main"
+                android:layout_weight="1"/>
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/BT_checkout_test"
-        android:text="check out(test)"/>
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/BT_addOrder_test"
-        android:text="add order(test)"/>
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/BT_addAnnouncement_test"
-        android:text="add announcement(test)"/>
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/BT_OrderMarket_test"
-        android:text="order market(test)"/>
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/BT_AnManaget_test"
-        android:text="announcement manage(test"/>
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/BT_OrderManage_test"
-        android:text="order manage(test)"/>
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/BT_logout_test"
-        android:text="logout(test)"/>
+        </RadioGroup>
+    </LinearLayout>
 </LinearLayout>

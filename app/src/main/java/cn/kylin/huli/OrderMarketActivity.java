@@ -4,8 +4,11 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -333,9 +337,15 @@ public class OrderMarketActivity extends AppCompatActivity {
                     Double orderprice=jsonObject.getDouble("orderprice");
                     String orderplace=jsonObject.getString("orderplace");
                     Double orderpaid=jsonObject.getDouble("orderpaid");
+                    String orderStart=jsonObject.getString("orderstart");
                     String orderend=jsonObject.getString("orderend");
-                    Order tmpOrder=new Order(id,ordername,orderplace,orderend,orderprice,orderpaid);
-                    orderList.add(tmpOrder);
+                    String orderStatus=jsonObject.getString("status");
+                    String cusPhone=jsonObject.getString("cusphone");
+                    int status=Integer.parseInt(orderStatus);
+                    if(status==1) {
+                        Order tmpOrder = new Order(id, ordername, orderplace, orderend, orderStart, orderprice, orderpaid, orderStatus,cusPhone);
+                        orderList.add(tmpOrder);
+                    }
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -360,17 +370,89 @@ public class OrderMarketActivity extends AppCompatActivity {
             return i;
         }
 
+        @SuppressLint("SetTextI18n")
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
             LayoutInflater inflater=getLayoutInflater();
             View rowView;
-            TextView rowMessage;
+            TextView rowMessage,orderStatus;
+            Button orderBtn,contactBtn;
             Order thisRow=getItem(i);
             rowView=inflater.inflate(R.layout.show_list_resource,viewGroup,false);
             rowMessage=rowView.findViewById(R.id.info_text_view);
-            rowMessage.setText(thisRow.getOrdername()+"\n"+thisRow.getOrderprice()+"\n"+thisRow.getOrderpaid()+"\n"+thisRow.getOrderplace()+"\n"+thisRow.getOrderDate());
+            orderStatus=rowView.findViewById(R.id.info_status_view);
+            orderBtn=rowView.findViewById(R.id.info_action_button);
+            contactBtn=rowView.findViewById(R.id.info_contact_button);
+            contactBtn.setText(R.string.refuse_order_btn);
+            orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_available));
+            orderBtn.setText(R.string.accept_order_btn);
+            orderBtn.setOnClickListener(click->{
+                AcceptOrderTask acceptOrderTask=new AcceptOrderTask();
+                acceptOrderTask.execute(String.valueOf(thisRow.getId()));
+                String result="";
+                try {
+                    result=acceptOrderTask.get();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if(result.equals("error")||result.equals("timeout")) {
+                    Toast.makeText(OrderMarketActivity.this,result,Toast.LENGTH_LONG).show();
+                }else {
+                    try {
+                        JSONObject jsonObject=new JSONObject(result);
+                        String status=jsonObject.getString("status");
+                        if(status.equals("1")) {
+                            Toast.makeText(OrderMarketActivity.this,"success",Toast.LENGTH_LONG).show();
+                            Intent intent=new Intent(OrderMarketActivity.this,MyOrderActivity.class);
+                            startActivity(intent);
+                            finish();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            });
+            contactBtn.setOnClickListener(click->{
+                AlertDialog.Builder builder1=new AlertDialog.Builder(OrderMarketActivity.this);
+                View refuseView=View.inflate(OrderMarketActivity.this,R.layout.refuse_details_view,null);
+                EditText refuseET=refuseView.findViewById(R.id.ET_refuseReason_refuse);
+                builder1.setTitle("Refuse reason");
+                builder1.setView(refuseView);
+                builder1.setPositiveButton("Refuse",(click1,arg1)->{
+                    RefuseOrderTask refuseOrderTask=new RefuseOrderTask();
+                    refuseOrderTask.execute(String.valueOf(thisRow.getId())+"/"+refuseET.getText().toString());
+                    String result="";
+                    try {
+                        result=refuseOrderTask.get();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if(result.equals("error")||result.equals("timeout")) {
+                        Toast.makeText(OrderMarketActivity.this,result,Toast.LENGTH_LONG).show();
+                    }else {
+                        try {
+                            JSONObject jsonObject=new JSONObject(result);
+                            String status=jsonObject.getString("status");
+                            if(status.equals("1")) {
+                                Toast.makeText(OrderMarketActivity.this,"success",Toast.LENGTH_LONG).show();
+                                Intent intent=new Intent(OrderMarketActivity.this,MyOrderActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).create().show();
+            });
+            rowMessage.setText(getResources().getString(R.string.order_name_detail)+thisRow.getOrdername()+"\n"+getResources().getString(R.string.order_money_detail)+thisRow.getOrderprice()+"\n"+getResources().getString(R.string.order_paid_detail)+thisRow.getOrderpaid()+"\n"+getResources().getString(R.string.order_place_detail)+thisRow.getOrderplace()+"\n"+getResources().getString(R.string.order_start_detail)+thisRow.getOrderStart()+"\n"+getResources().getString(R.string.order_end_detail)+thisRow.getOrderDate());
             rowMessage.setTextColor(Color.BLACK);
-            rowMessage.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            rowMessage.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
             return rowView;
         }
     }

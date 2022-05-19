@@ -7,7 +7,9 @@
         <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/activity_announce_manage.xml" value="0.3619791666666667" />
         <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/activity_create_annoucement.xml" value="0.21354166666666666" />
         <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/activity_login.xml" value="0.1875" />
-        <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/activity_main.xml" value="0.1875" />
+        <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/activity_main.xml" value="0.2" />
+        <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/activity_main2.xml" value="0.24365942028985507" />
+        <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/activity_my_info.xml" value="0.2513586956521739" />
         <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/activity_my_order.xml" value="0.3619791666666667" />
         <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/activity_order_manage.xml" value="0.3619791666666667" />
         <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/activity_order_market.xml" value="0.3619791666666667" />
@@ -22,7 +24,11 @@
         <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/refuse_details_view.xml" value="0.21666666666666667" />
         <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/show__order_details_view.xml" value="0.20364583333333333" />
         <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/show_announce_details_view.xml" value="0.19895833333333332" />
+        <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/show_announce_view.xml" value="0.2513586956521739" />
         <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/show_list_resource.xml" value="0.2" />
+        <entry key="..\:/workplace/studioProject/huli/app/src/main/res/layout/show_my_order_details_view.xml" value="0.22327898550724637" />
+        <entry key="..\:/workplace/studioProject/huli/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.1" />
+        <entry key="..\:/workplace/studioProject/huli/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.148" />
       </map>
     </option>
   </component>

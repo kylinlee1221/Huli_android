@@ -6,7 +6,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -88,132 +90,7 @@ public class OrderManageActivity extends AppCompatActivity {
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
-        infoList.setOnItemLongClickListener((p,b,pos,id)->{
-            Order tmpOrder=orderList.get(pos);
-            View tempView=View.inflate(OrderManageActivity.this,R.layout.show__order_details_view,null);
-            TextView orderName=tempView.findViewById(R.id.TV_orderName_details),orderPlace=tempView.findViewById(R.id.TV_orderPlace_details),orderEndTime=tempView.findViewById(R.id.TV_orderEndTime_details),orderStatus=tempView.findViewById(R.id.TV_orderStatus_details);
-            AlertDialog.Builder builder=new AlertDialog.Builder(OrderManageActivity.this);
-            orderName.setText(tmpOrder.getOrdername());
-            orderPlace.setText(tmpOrder.getOrderplace());
-            orderEndTime.setText(tmpOrder.getOrderDate());
-            if(tmpOrder.getOrderStatus().equals("0")){
-                orderStatus.setText("unavailable");
-            }else if(tmpOrder.getOrderStatus().equals("1")){
-                orderStatus.setText("available");
-            }else if(tmpOrder.getOrderStatus().equals("2")){
-                orderStatus.setText("on work");
-            }else if(tmpOrder.getOrderStatus().equals("3")){
-                orderStatus.setText("refused");
-            }else{
-                orderStatus.setText("done");
-            }
-            builder.setView(tempView);
-            builder.setTitle("Modify or delete");
-            builder.setPositiveButton("modify",(click,arg)->{
-                View updateView=View.inflate(OrderManageActivity.this,R.layout.edit_order_view,null);
-                EditText orderMoneyET=updateView.findViewById(R.id.ET_money_Edit),alreadyPaidET=updateView.findViewById(R.id.ET_alreadyPay_Edit),placeET=updateView.findViewById(R.id.ET_place_Edit);
-                Button dateChoser=updateView.findViewById(R.id.BT_DateChooser_Edit),timeChoser=updateView.findViewById(R.id.BT_TimeChooser_Edit);
-                orderMoneyET.setText(String.valueOf(tmpOrder.getOrderprice()));
-                alreadyPaidET.setText(String.valueOf(tmpOrder.getOrderpaid()));
-                placeET.setText(tmpOrder.getOrderplace());
-                AlertDialog.Builder updateBuilder=new AlertDialog.Builder(OrderManageActivity.this);
-                dateChoser.setOnClickListener(click2->{
-                    final String[] timeChosed = {""};
-                    DatePickerDialog.OnDateSetListener listener=new DatePickerDialog.OnDateSetListener() {
-                        @Override
-                        public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
-                            dateChoser.setText(String.valueOf(i)+"-"+String.valueOf((++i1))+"-"+String.valueOf(i2));
-                        }
-                    };
 
-                    DatePickerDialog datePickerDialog=new DatePickerDialog(this,0,listener,year,month,day);
-                    datePickerDialog.show();
-
-                    Log.e("time",timeChosed[0]);
-                    dateChoser.setText(timeChosed[0]);
-                });
-                timeChoser.setOnClickListener(click2->{
-                    final String[] timeChosed = {""};
-                    TimePickerDialog.OnTimeSetListener timeListener=new TimePickerDialog.OnTimeSetListener() {
-                        @Override
-                        public void onTimeSet(TimePicker timePicker, int i, int i1) {
-                            timeChoser.setText(String.valueOf(i)+":"+String.valueOf((i1)));
-                        }
-                    };
-                    TimePickerDialog timePickerDialog=new TimePickerDialog(this,timeListener,hour,minute,true);
-                    timePickerDialog.show();
-                });
-                updateBuilder.setView(updateView);
-                updateBuilder.setTitle("Modify order");
-                updateBuilder.setPositiveButton("Modify",(click1,arg1)->{
-                    String moneyST=orderMoneyET.getText().toString(),paidST=alreadyPaidET.getText().toString(),dateST=dateChoser.getText().toString(),timeST=timeChoser.getText().toString(),placeST=placeET.getText().toString();
-                    String params=String.valueOf(tmpOrder.getId())+"/"+moneyST+"/"+paidST+"/"+dateST+" "+timeST+"/"+placeST;
-                    ModifyOrderTask modifyOrderTask=new ModifyOrderTask();
-                    modifyOrderTask.execute(params);
-                    String updateRes="",getResultIn="";
-                    try{
-                        updateRes=modifyOrderTask.get();
-                        Log.e("update res",updateRes);
-                        if(updateRes.trim().equals("timeout")||updateRes.trim().equals("error")){
-                            Toast.makeText(OrderManageActivity.this,updateRes,Toast.LENGTH_LONG).show();
-                        }else{
-                            GetOrderListTask getInDelete=new GetOrderListTask();
-                            getInDelete.execute("gogogo");
-                            getResultIn=getInDelete.get();
-                            if(getResultIn.trim().equals("timeout")||getResultIn.trim().equals("error")){
-                                Toast.makeText(this,"get error",Toast.LENGTH_LONG).show();
-                            }else{
-                                if(orderList.size()!=0){
-                                    adapter=new infoAdapter();
-                                    infoList.setAdapter(adapter);
-                                    adapter.notifyDataSetChanged();
-                                }
-                            }
-                        }
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }).create().show();
-            }).setNegativeButton("delete",(click,arg)->{
-                String params=String.valueOf(tmpOrder.getId());
-                AlertDialog.Builder deleteAlert=new AlertDialog.Builder(OrderManageActivity.this);
-                deleteAlert.setTitle("Confirm delete?");
-                deleteAlert.setPositiveButton("yes",(click1,arg1)->{
-                    DeleteOrderTask deleteOrderTask=new DeleteOrderTask();
-                    deleteOrderTask.execute(params);
-                    String updateRes="",getResultIn="";
-                    try{
-                        updateRes=deleteOrderTask.get();
-                        Log.e("update res",updateRes);
-                        if(updateRes.trim().equals("timeout")||updateRes.trim().equals("error")){
-                            Toast.makeText(OrderManageActivity.this,updateRes,Toast.LENGTH_LONG).show();
-                        }else{
-                            GetOrderListTask getInDelete=new GetOrderListTask();
-                            getInDelete.execute("gogogo");
-                            getResultIn=getInDelete.get();
-                            if(getResultIn.trim().equals("timeout")||getResultIn.trim().equals("error")){
-                                Toast.makeText(this,"get error",Toast.LENGTH_LONG).show();
-                            }else{
-                                if(orderList.size()!=0){
-                                    adapter=new infoAdapter();
-                                    infoList.setAdapter(adapter);
-                                    adapter.notifyDataSetChanged();
-                                }
-                            }
-                        }
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }).setNegativeButton("no",(click1,arg1)->{
-
-                }).create().show();
-            }).create().show();
-            return true;
-        });
     }
 
     public class ModifyOrderTask extends AsyncTask<String,Void,String>{
@@ -367,9 +244,12 @@ public class OrderManageActivity extends AppCompatActivity {
                     Double orderprice=jsonObject.getDouble("orderprice");
                     String orderplace=jsonObject.getString("orderplace");
                     Double orderpaid=jsonObject.getDouble("orderpaid");
+                    String orderStart=jsonObject.getString("orderstart");
                     String orderend=jsonObject.getString("orderend");
                     String orderStatus=jsonObject.getString("status");
-                    Order tmpOrder=new Order(id,ordername,orderplace,orderend,orderprice,orderpaid,orderStatus);
+                    String cusPhone=jsonObject.getString("cusphone");
+                    int status=Integer.parseInt(orderStatus);
+                    Order tmpOrder = new Order(id, ordername, orderplace, orderend, orderStart, orderprice, orderpaid, orderStatus,cusPhone);
                     orderList.add(tmpOrder);
                 }
             } catch (JSONException e) {
@@ -421,13 +301,143 @@ public class OrderManageActivity extends AppCompatActivity {
         public View getView(int i, View view, ViewGroup viewGroup) {
             LayoutInflater inflater=getLayoutInflater();
             View rowView;
-            TextView rowMessage;
+            TextView rowMessage,orderStatus;
+            Button orderBtn,contactBtn;
             Order thisRow=getItem(i);
             rowView=inflater.inflate(R.layout.show_list_resource,viewGroup,false);
             rowMessage=rowView.findViewById(R.id.info_text_view);
-            rowMessage.setText(thisRow.getOrdername()+"\n"+thisRow.getOrderprice()+"\n"+thisRow.getOrderpaid()+"\n"+thisRow.getOrderplace()+"\n"+thisRow.getOrderDate());
+            orderStatus=rowView.findViewById(R.id.info_status_view);
+            orderBtn=rowView.findViewById(R.id.info_action_button);
+            contactBtn=rowView.findViewById(R.id.info_contact_button);
+            contactBtn.setText(getResources().getString(R.string.edit_btn));
+            if(thisRow.getOrderStatus().equals("2")){
+                orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_accept));
+                orderStatus.setTextColor(Color.BLACK);
+                orderBtn.setText(getResources().getString(R.string.delete_btn));
+            }else if(thisRow.getOrderStatus().equals("3")){
+                orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_work));
+                orderStatus.setTextColor(Color.BLACK);
+                orderBtn.setText(getResources().getString(R.string.delete_btn));
+            }else if(thisRow.getOrderStatus().equals("4")){
+                orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_refuse));
+                orderStatus.setTextColor(Color.BLACK);
+                orderBtn.setText(getResources().getString(R.string.delete_btn));
+            }else if(thisRow.getOrderStatus().equals("5")){
+                orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_done));
+                orderStatus.setTextColor(Color.BLACK);
+                orderBtn.setText(getResources().getString(R.string.delete_btn));
+            }else if(thisRow.getOrderStatus().equals("1")){
+                orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_available));
+                orderStatus.setTextColor(Color.BLACK);
+                orderBtn.setText(getResources().getString(R.string.delete_btn));
+            }
+            orderBtn.setOnClickListener(click->{
+                String params=String.valueOf(thisRow.getId());
+                AlertDialog.Builder deleteAlert=new AlertDialog.Builder(OrderManageActivity.this);
+                deleteAlert.setTitle(getResources().getString(R.string.delete_confirm_hint));
+                deleteAlert.setPositiveButton(getResources().getString(R.string.yes_btn),(click1,arg1)->{
+                    DeleteOrderTask deleteOrderTask=new DeleteOrderTask();
+                    deleteOrderTask.execute(params);
+                    String updateRes="",getResultIn="";
+                    try{
+                        updateRes=deleteOrderTask.get();
+                        Log.e("update res",updateRes);
+                        if(updateRes.trim().equals("timeout")||updateRes.trim().equals("error")){
+                            Toast.makeText(OrderManageActivity.this,updateRes,Toast.LENGTH_LONG).show();
+                        }else{
+                            GetOrderListTask getInDelete=new GetOrderListTask();
+                            getInDelete.execute("gogogo");
+                            getResultIn=getInDelete.get();
+                            if(getResultIn.trim().equals("timeout")||getResultIn.trim().equals("error")){
+                                Toast.makeText(OrderManageActivity.this,"get error",Toast.LENGTH_LONG).show();
+                            }else{
+                                Toast.makeText(OrderManageActivity.this,"delete success",Toast.LENGTH_LONG).show();
+                                //onRestart();
+                                Intent intent=new Intent(OrderManageActivity.this,OrderManageActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }
+                        }
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }).setNegativeButton(getResources().getString(R.string.no_btn),(click1,arg1)->{
+
+                }).create().show();
+            });
+            contactBtn.setOnClickListener(click->{
+                View updateView=View.inflate(OrderManageActivity.this,R.layout.edit_order_view,null);
+                EditText orderMoneyET=updateView.findViewById(R.id.ET_money_Edit),alreadyPaidET=updateView.findViewById(R.id.ET_alreadyPay_Edit),placeET=updateView.findViewById(R.id.ET_place_Edit);
+                Button dateChoser=updateView.findViewById(R.id.BT_DateChooser_Edit),timeChoser=updateView.findViewById(R.id.BT_TimeChooser_Edit);
+                orderMoneyET.setText(String.valueOf(thisRow.getOrderprice()));
+                alreadyPaidET.setText(String.valueOf(thisRow.getOrderpaid()));
+                placeET.setText(thisRow.getOrderplace());
+                AlertDialog.Builder updateBuilder=new AlertDialog.Builder(OrderManageActivity.this);
+                dateChoser.setOnClickListener(click2->{
+                    final String[] timeChosed = {""};
+                    DatePickerDialog.OnDateSetListener listener=new DatePickerDialog.OnDateSetListener() {
+                        @Override
+                        public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+                            dateChoser.setText(String.valueOf(i)+"-"+String.valueOf((++i1))+"-"+String.valueOf(i2));
+                        }
+                    };
+
+                    DatePickerDialog datePickerDialog=new DatePickerDialog(OrderManageActivity.this,0,listener,year,month,day);
+                    datePickerDialog.show();
+
+                    Log.e("time",timeChosed[0]);
+                    dateChoser.setText(timeChosed[0]);
+                });
+                timeChoser.setOnClickListener(click2->{
+                    final String[] timeChosed = {""};
+                    TimePickerDialog.OnTimeSetListener timeListener=new TimePickerDialog.OnTimeSetListener() {
+                        @Override
+                        public void onTimeSet(TimePicker timePicker, int i, int i1) {
+                            timeChoser.setText(String.valueOf(i)+":"+String.valueOf((i1)));
+                        }
+                    };
+                    TimePickerDialog timePickerDialog=new TimePickerDialog(OrderManageActivity.this,timeListener,hour,minute,true);
+                    timePickerDialog.show();
+                });
+                updateBuilder.setView(updateView);
+                updateBuilder.setTitle("Modify order");
+                updateBuilder.setPositiveButton("Modify",(click1,arg1)->{
+                    String moneyST=orderMoneyET.getText().toString(),paidST=alreadyPaidET.getText().toString(),dateST=dateChoser.getText().toString(),timeST=timeChoser.getText().toString(),placeST=placeET.getText().toString();
+                    String params=String.valueOf(thisRow.getId())+"/"+moneyST+"/"+paidST+"/"+dateST+" "+timeST+"/"+placeST;
+                    ModifyOrderTask modifyOrderTask=new ModifyOrderTask();
+                    modifyOrderTask.execute(params);
+                    String updateRes="",getResultIn="";
+                    try{
+                        updateRes=modifyOrderTask.get();
+                        Log.e("update res",updateRes);
+                        if(updateRes.trim().equals("timeout")||updateRes.trim().equals("error")){
+                            Toast.makeText(OrderManageActivity.this,updateRes,Toast.LENGTH_LONG).show();
+                        }else{
+                            GetOrderListTask getInDelete=new GetOrderListTask();
+                            getInDelete.execute("gogogo");
+                            getResultIn=getInDelete.get();
+                            if(getResultIn.trim().equals("timeout")||getResultIn.trim().equals("error")){
+                                Toast.makeText(OrderManageActivity.this,"get error",Toast.LENGTH_LONG).show();
+                            }else{
+                                Toast.makeText(OrderManageActivity.this,"delete success",Toast.LENGTH_LONG).show();
+                                //onRestart();
+                                Intent intent=new Intent(OrderManageActivity.this,OrderManageActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }
+                        }
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }).create().show();
+            });
+            rowMessage.setText(getResources().getString(R.string.order_name_detail)+thisRow.getOrdername()+"\n"+getResources().getString(R.string.order_money_detail)+thisRow.getOrderprice()+"\n"+getResources().getString(R.string.order_paid_detail)+thisRow.getOrderpaid()+"\n"+getResources().getString(R.string.order_place_detail)+thisRow.getOrderplace()+"\n"+getResources().getString(R.string.order_phone_detail)+thisRow.getOrderPhone()+"\n"+getResources().getString(R.string.order_start_detail)+thisRow.getOrderStart()+"\n"+getResources().getString(R.string.order_end_detail)+thisRow.getOrderDate());
             rowMessage.setTextColor(Color.BLACK);
-            rowMessage.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            rowMessage.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
             return rowView;
         }
     }

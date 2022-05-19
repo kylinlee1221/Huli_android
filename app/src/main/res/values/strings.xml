@@ -1,4 +1,68 @@
 <resources>
     <string name="app_name">Huli</string>
-
+    <string-array name="order_filter">
+        <item>All</item>
+        <item>working</item>
+        <item>done</item>
+        <item>out of date</item>
+    </string-array>
+    <string name="title_activity_main2">MainActivity2</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="date_chose_btn">Chose date</string>
+    <string name="time_chose_btn">Chose time</string>
+    <string name="add_order_btn">Add order</string>
+    <string name="order_manage_btn">Order manage</string>
+    <string name="contact_btn">Contact</string>
+    <string name="edit_btn">edit</string>
+    <string name="delete_btn">delete</string>
+    <string name="delete_confirm_hint">Confirm delete?</string>
+    <string name="yes_btn">yes</string>
+    <string name="no_btn">no</string>
+    <string name="add_announcement_btn">Add announcement</string>
+    <string name="accept_order_btn">Accept</string>
+    <string name="refuse_order_btn">Refuse</string>
+    <string name="tool_box_btn">Tool Box</string>
+    <string name="my_order_btn">My Order</string>
+    <string name="order_market_btn">Order Market</string>
+    <string name="log_out_btn">log out</string>
+    <string name="log_in_btn">log in</string>
+    <string name="register_btn">register</string>
+    <string name="announce_manage_btn">Announcement manage</string>
+    <string name="username_input_hint">username</string>
+    <string name="username_input_login_hint">username or telephone</string>
+    <string name="password_input_hint">password</string>
+    <string name="remember_login_hint">Remember me</string>
+    <string name="order_name_hint">Order name</string>
+    <string name="order_money_hint">Order money</string>
+    <string name="order_paid_hint">Already paid</string>
+    <string name="order_send_hint">Send to:</string>
+    <string name="order_start_hint">Order start date:</string>
+    <string name="order_end_hint">Order end date:</string>
+    <string name="order_place_hint">Order place</string>
+    <string name="order_place_detail_hint">Order place details</string>
+    <string name="order_phone_hint">Customer phone number</string>
+    <string name="no_login_hint">You should log in first</string>
+    <string name="order_name_detail">Order name:</string>
+    <string name="order_money_detail">Order money:</string>
+    <string name="order_paid_detail">Order paid:</string>
+    <string name="order_place_detail">Order place:</string>
+    <string name="order_phone_detail">Customer phone:</string>
+    <string name="order_start_detail">Start time:</string>
+    <string name="order_end_detail">End time:</string>
+    <string name="order_status_detail">Status:</string>
+    <string name="announce_info_detail">Info:</string>
+    <string name="user_info_fullname">Fullname:</string>
+    <string name="user_info_telephone">Telephone:</string>
+    <string name="user_info_money">Money:</string>
+    <string name="user_info_role_user">User</string>
+    <string name="user_info_role_admin">admin</string>
+    <string name="user_logout_hint">You already logout</string>
+    <string name="user_permission_hint">You are not admin</string>
+    <string name="status_available">available</string>
+    <string name="status_accept">accepted</string>
+    <string name="status_work">on work</string>
+    <string name="status_refuse">refused</string>
+    <string name="status_done">done</string>
 </resources>
