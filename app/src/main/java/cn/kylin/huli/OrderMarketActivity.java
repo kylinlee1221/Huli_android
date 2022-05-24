@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -42,6 +43,8 @@ import cn.kylin.huli.model.Order;
 public class OrderMarketActivity extends AppCompatActivity {
     private ArrayList<Order> orderList=new ArrayList<Order>();
     private infoAdapter adapter;
+    private ListView infoList;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,11 +53,11 @@ public class OrderMarketActivity extends AppCompatActivity {
         SharedPreferences sp=getSharedPreferences("login",MODE_PRIVATE);
         Long userid=sp.getLong("id",-1);
         Log.e("uid",String.valueOf(userid));
-        ListView infoList=findViewById(R.id.LV_orderList_Market);
-        SwipeRefreshLayout swipeRefreshLayout=findViewById(R.id.SW_OrderM);
+        infoList=findViewById(R.id.LV_orderList_Market);
+        swipeRefreshLayout=findViewById(R.id.SW_OrderM);
         GetOrderListByIdTask getOrderListByIdTask=new GetOrderListByIdTask();
         getOrderListByIdTask.execute(String.valueOf(userid));
-        try {
+        /*try {
             if(!getOrderListByIdTask.get().equals("error")||getOrderListByIdTask.get().equals("timeout")){
                 addToInfo(getOrderListByIdTask.get());
                 if(orderList.size()!=0){
@@ -67,15 +70,16 @@ public class OrderMarketActivity extends AppCompatActivity {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
+        }*/
+
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 GetOrderListByIdTask getOrderListByIdTask1=new GetOrderListByIdTask();
                 getOrderListByIdTask1.execute(String.valueOf(userid));
                 try {
-                    if(!getOrderListByIdTask.get().equals("error")||!getOrderListByIdTask.get().equals("timeout")){
-                        addToInfo(getOrderListByIdTask.get());
+                    if(!getOrderListByIdTask1.get().equals("error")||!getOrderListByIdTask1.get().equals("timeout")){
+                        addToInfo(getOrderListByIdTask1.get());
                         if(orderList.size()!=0){
                             adapter=new infoAdapter();
                             infoList.setAdapter(adapter);
@@ -87,7 +91,7 @@ public class OrderMarketActivity extends AppCompatActivity {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                swipeRefreshLayout.setRefreshing(false);
+                //swipeRefreshLayout.setRefreshing(false);
             }
         });
         /*Handler getListHandler=new Handler();
@@ -114,78 +118,6 @@ public class OrderMarketActivity extends AppCompatActivity {
             }
         };
         getListHandler.postDelayed(getListRun,5000);*/
-        infoList.setOnItemLongClickListener((p,b,pos,id)->{
-            Order tmpOrder=orderList.get(pos);
-            //Log.e("tmpOrder",tmpOrder.toString());
-            //String orderDate=tmpOrder.getOrderDate();
-            //Log.e("orderDate",tmpOrder.getOrderDate());
-            View tempView=View.inflate(OrderMarketActivity.this,R.layout.show__order_details_view,null);
-            TextView orderName=tempView.findViewById(R.id.TV_orderName_details),orderPlace=tempView.findViewById(R.id.TV_orderPlace_details),orderEndTime=tempView.findViewById(R.id.TV_orderEndTime_details);
-            AlertDialog.Builder builder=new AlertDialog.Builder(OrderMarketActivity.this);
-            orderName.setText(tmpOrder.getOrdername());
-            orderPlace.setText(tmpOrder.getOrderplace());
-            orderEndTime.setText(tmpOrder.getOrderDate());
-            builder.setTitle("Accept or refuse");
-            builder.setView(tempView);
-            builder.setPositiveButton("Accept",(click,arg)->{
-                AcceptOrderTask acceptOrderTask=new AcceptOrderTask();
-                acceptOrderTask.execute(String.valueOf(tmpOrder.getId()));
-                String result="";
-                try {
-                    result=acceptOrderTask.get();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                if(result.equals("error")||result.equals("timeout")) {
-                    Toast.makeText(OrderMarketActivity.this,result,Toast.LENGTH_LONG).show();
-                }else {
-                    try {
-                        JSONObject jsonObject=new JSONObject(result);
-                        String status=jsonObject.getString("status");
-                        if(status.equals("1")) {
-                            Toast.makeText(OrderMarketActivity.this,"success",Toast.LENGTH_LONG).show();
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            }).setNegativeButton("Refuse",(click,arg)->{
-                AlertDialog.Builder builder1=new AlertDialog.Builder(OrderMarketActivity.this);
-                View refuseView=View.inflate(OrderMarketActivity.this,R.layout.refuse_details_view,null);
-                EditText refuseET=refuseView.findViewById(R.id.ET_refuseReason_refuse);
-                builder1.setTitle("Refuse reason");
-                builder1.setView(refuseView);
-                builder1.setPositiveButton("Refuse",(click1,arg1)->{
-                    RefuseOrderTask refuseOrderTask=new RefuseOrderTask();
-                    refuseOrderTask.execute(String.valueOf(tmpOrder.getId())+"/"+refuseET.getText().toString());
-                    String result="";
-                    try {
-                        result=refuseOrderTask.get();
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    if(result.equals("error")||result.equals("timeout")) {
-                        Toast.makeText(OrderMarketActivity.this,result,Toast.LENGTH_LONG).show();
-                    }else {
-                        try {
-                            JSONObject jsonObject=new JSONObject(result);
-                            String status=jsonObject.getString("status");
-                            if(status.equals("1")) {
-                                Toast.makeText(OrderMarketActivity.this,"success",Toast.LENGTH_LONG).show();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }).create().show();
-            }).create().show();
-            return true;
-        });
     }
 
     public class GetOrderListByIdTask extends AsyncTask<String,Void,String>{
@@ -202,7 +134,7 @@ public class OrderMarketActivity extends AppCompatActivity {
                 URL url1=new URL(url);
                 HttpURLConnection conn=(HttpURLConnection) url1.openConnection();
                 conn.setRequestMethod("GET");
-                conn.setReadTimeout(5000);
+                conn.setReadTimeout(3000);
                 try{
                     conn.connect();
                 }catch (SocketTimeoutException e){
@@ -231,6 +163,46 @@ public class OrderMarketActivity extends AppCompatActivity {
             return buffer.toString();
             //return null;
         }
+        @Override
+        protected void onPostExecute(String result){
+            super.onPostExecute(result);
+            orderList.clear();
+            if(!result.equals("error")){
+                JSONArray jsonArray = null;
+                try {
+                    jsonArray = new JSONArray(result);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject=jsonArray.getJSONObject(i);
+                        Long id=jsonObject.getLong("id");
+                        String ordername=jsonObject.getString("ordername");
+                        Double orderprice=jsonObject.getDouble("orderprice");
+                        String orderplace=jsonObject.getString("orderplace");
+                        Double orderpaid=jsonObject.getDouble("orderpaid");
+                        String orderStart=jsonObject.getString("orderstart");
+                        String orderend=jsonObject.getString("orderend");
+                        String orderStatus=jsonObject.getString("status");
+                        String cusPhone=jsonObject.getString("cusphone");
+                        int status=Integer.parseInt(orderStatus);
+                        if(status==1) {
+                            Order tmpOrder = new Order(id, ordername, orderplace, orderend, orderStart, orderprice, orderpaid, orderStatus,cusPhone);
+                            orderList.add(tmpOrder);
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if(!result.equals("error")&&!result.equals("timeout")){
+                    if(orderList.size()!=0){
+                        adapter=new infoAdapter();
+                        infoList.setAdapter(adapter);
+                        adapter.notifyDataSetChanged();
+                    }
+                }else{
+                    Toast.makeText(OrderMarketActivity.this,"Connection error",Toast.LENGTH_LONG).show();
+                }
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }
     }
 
     public class AcceptOrderTask extends AsyncTask<String,Void,String>{
@@ -246,7 +218,7 @@ public class OrderMarketActivity extends AppCompatActivity {
                 URL url1=new URL(url);
                 HttpURLConnection conn=(HttpURLConnection) url1.openConnection();
                 conn.setRequestMethod("GET");
-                conn.setReadTimeout(5000);
+                conn.setReadTimeout(3000);
                 try{
                     conn.connect();
                 }catch (SocketTimeoutException e){
@@ -292,7 +264,7 @@ public class OrderMarketActivity extends AppCompatActivity {
                 URL url1=new URL(url);
                 HttpURLConnection conn=(HttpURLConnection) url1.openConnection();
                 conn.setRequestMethod("GET");
-                conn.setReadTimeout(5000);
+                conn.setReadTimeout(3000);
                 try{
                     conn.connect();
                 }catch (SocketTimeoutException e){

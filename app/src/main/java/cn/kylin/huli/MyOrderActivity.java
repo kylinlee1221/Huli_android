@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -43,31 +44,28 @@ public class MyOrderActivity extends AppCompatActivity {
     private ArrayList<Order> doneOrderArrayList=new ArrayList<Order>();
     private ArrayList<Order> outODOrderArrayList=new ArrayList<Order>();
     private infoAdapter adapter;
+    private ListView orderList;
+    private SwipeRefreshLayout swipeRefreshLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_order);
         Spinner OrderFilter=findViewById(R.id.SP_orderFilter_MyOrder);
-        ListView orderList=findViewById(R.id.LV_orderList_MyOrder);
-        SwipeRefreshLayout swipeRefreshLayout=findViewById(R.id.SW_MyOrder);
+        orderList=findViewById(R.id.LV_orderList_MyOrder);
+        swipeRefreshLayout=findViewById(R.id.SW_MyOrder);
         SharedPreferences sp=getSharedPreferences("login",MODE_PRIVATE);
         Long userId=sp.getLong("id",-1);
         GetOrderListByIdTask getOrderListByIdTask=new GetOrderListByIdTask();
         getOrderListByIdTask.execute(String.valueOf(userId));
-        try {
-            if(!getOrderListByIdTask.get().equals("error")||getOrderListByIdTask.get().equals("timeout")){
-                //addToInfo(getOrderListByIdTask.get());
-                if(orderArrayList.size()!=0){
-                    adapter=new infoAdapter();
-                    orderList.setAdapter(adapter);
-                    adapter.notifyDataSetChanged();
-                }
-            }
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            //addToInfo(getOrderListByIdTask.get());
+        if (orderArrayList.size() != 0) {
+            adapter = new infoAdapter();
+            orderList.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
         }
+
+
+
         OrderFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -84,137 +82,7 @@ public class MyOrderActivity extends AppCompatActivity {
             public void onRefresh() {
                 GetOrderListByIdTask getOrderListByIdTask1=new GetOrderListByIdTask();
                 getOrderListByIdTask1.execute(String.valueOf(userId));
-                try {
-                    if(!getOrderListByIdTask.get().equals("error")||!getOrderListByIdTask.get().equals("timeout")){
-                        //addToInfo(getOrderListByIdTask.get());
-                        if(orderArrayList.size()!=0){
-                            adapter=new infoAdapter();
-                            orderList.setAdapter(adapter);
-                            adapter.notifyDataSetChanged();
-                        }
-                    }
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                swipeRefreshLayout.setRefreshing(false);
             }
-        });
-        orderList.setOnItemLongClickListener((p,b,pos,id)->{
-            AlertDialog.Builder builder=new AlertDialog.Builder(MyOrderActivity.this);
-            Order tmpOrder=orderArrayList.get(pos);
-            View tmpView=View.inflate(MyOrderActivity.this,R.layout.show_my_order_details_view,null);
-            TextView place=tmpView.findViewById(R.id.TV_orderPlace_myOrder),phone=tmpView.findViewById(R.id.TV_orderPhone_myOrder),status=tmpView.findViewById(R.id.TV_orderStatus_myOrder);
-            place.setText(tmpOrder.getOrderplace());
-            phone.setText(tmpOrder.getOrderPhone());
-            Log.e("status",tmpOrder.getOrderStatus());
-            if(tmpOrder.getOrderStatus().equals("2")){
-                status.setText("accepted");
-            }else if(tmpOrder.getOrderStatus().equals("3")){
-                status.setText("on work");
-            }else if(tmpOrder.getOrderStatus().equals("4")){
-                status.setText("refused");
-            }else if(tmpOrder.getOrderStatus().equals("5")){
-                status.setText("done");
-            }
-            builder.setView(tmpView);
-            builder.setTitle("Order details");
-            builder.setPositiveButton("Working",(click,arg)->{
-                if(tmpOrder.getOrderStatus().equals("2")){
-                    WorkOnOrderTask workOnOrderTask=new WorkOnOrderTask();
-                    workOnOrderTask.execute(String.valueOf(tmpOrder.getId()));
-                    String result = "";
-                    try {
-                        result = workOnOrderTask.get();
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    if (result.equals("error") || result.equals("timeout")) {
-                        Toast.makeText(MyOrderActivity.this, result, Toast.LENGTH_LONG).show();
-                    } else {
-                        try {
-                            JSONObject jsonObject = new JSONObject(result);
-                            String returnStatus = jsonObject.getString("status");
-                            if (returnStatus.equals("1")) {
-                                Toast.makeText(MyOrderActivity.this, "success", Toast.LENGTH_LONG).show();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    GetOrderListByIdTask getOrderListByIdTask1=new GetOrderListByIdTask();
-                    getOrderListByIdTask1.execute(String.valueOf(userId));
-                    try {
-                        if(!getOrderListByIdTask.get().equals("error")||!getOrderListByIdTask.get().equals("timeout")){
-                            //addToInfo(getOrderListByIdTask.get());
-                            if(orderArrayList.size()!=0){
-                                adapter=new infoAdapter();
-                                orderList.setAdapter(adapter);
-                                adapter.notifyDataSetChanged();
-                            }
-                        }
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }else{
-                    Toast.makeText(MyOrderActivity.this,"status error",Toast.LENGTH_LONG).show();
-                }
-            }).setNegativeButton("Done",(click,arg)->{
-                if(tmpOrder.getOrderStatus().equals("3")) {
-                    MarkOrderCompleteTask markOrderCompleteTask = new MarkOrderCompleteTask();
-                    markOrderCompleteTask.execute(String.valueOf(tmpOrder.getId()));
-                    String result = "";
-                    try {
-                        result = markOrderCompleteTask.get();
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    if (result.equals("error") || result.equals("timeout")) {
-                        Toast.makeText(MyOrderActivity.this, result, Toast.LENGTH_LONG).show();
-                    } else {
-                        try {
-                            JSONObject jsonObject = new JSONObject(result);
-                            String returnStatus = jsonObject.getString("status");
-                            if (returnStatus.equals("1")) {
-                                Toast.makeText(MyOrderActivity.this, "success", Toast.LENGTH_LONG).show();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    GetOrderListByIdTask getOrderListByIdTask1=new GetOrderListByIdTask();
-                    getOrderListByIdTask1.execute(String.valueOf(userId));
-                    try {
-                        if(!getOrderListByIdTask.get().equals("error")||!getOrderListByIdTask.get().equals("timeout")){
-                            //addToInfo(getOrderListByIdTask.get());
-                            if(orderArrayList.size()!=0){
-                                adapter=new infoAdapter();
-                                orderList.setAdapter(adapter);
-                                adapter.notifyDataSetChanged();
-                            }
-                        }
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }else{
-                    Toast.makeText(MyOrderActivity.this,"status error",Toast.LENGTH_LONG).show();
-                }
-            }).setNeutralButton("Contact with user",(click,arg)->{
-                Intent callPhone=new Intent(Intent.ACTION_DIAL);
-                Uri phoneNum=Uri.parse("tel:"+tmpOrder.getOrderPhone());
-                callPhone.setData(phoneNum);
-                startActivity(callPhone);
-            }).create().show();
-            return true;
         });
     }
 
@@ -232,7 +100,7 @@ public class MyOrderActivity extends AppCompatActivity {
                 URL url1=new URL(url);
                 HttpURLConnection conn=(HttpURLConnection) url1.openConnection();
                 conn.setRequestMethod("GET");
-                conn.setReadTimeout(5000);
+                conn.setReadTimeout(3000);
                 try{
                     conn.connect();
                 }catch (SocketTimeoutException e){
@@ -261,6 +129,48 @@ public class MyOrderActivity extends AppCompatActivity {
             return buffer.toString();
             //return null;
         }
+
+        @Override
+        protected void onPostExecute(String result){
+            super.onPostExecute(result);
+            if(result.equals("timeout")||result.equals("error")){
+                Toast.makeText(MyOrderActivity.this,result,Toast.LENGTH_LONG).show();
+            }else{
+                orderArrayList.clear();
+                if(!result.equals("error")){
+                    JSONArray jsonArray = null;
+                    try {
+                        jsonArray = new JSONArray(result);
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject jsonObject=jsonArray.getJSONObject(i);
+                            Long id=jsonObject.getLong("id");
+                            String ordername=jsonObject.getString("ordername");
+                            Double orderprice=jsonObject.getDouble("orderprice");
+                            String orderplace=jsonObject.getString("orderplace");
+                            Double orderpaid=jsonObject.getDouble("orderpaid");
+                            String orderend=jsonObject.getString("orderend");
+                            String orderStart=jsonObject.getString("orderstart");
+                            String orderStatus=jsonObject.getString("status");
+                            String cusPhone=jsonObject.getString("cusphone");
+                            int status=Integer.parseInt(orderStatus);
+                            if(status>1) {
+                                Order tmpOrder = new Order(id, ordername, orderplace, orderend, orderStart, orderprice, orderpaid, orderStatus,cusPhone);
+                                orderArrayList.add(tmpOrder);
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+                if (orderArrayList.size() != 0) {
+                    adapter = new infoAdapter();
+                    orderList.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
+                }
+            }
+            swipeRefreshLayout.setRefreshing(false);
+        }
     }
 
     public class MarkOrderCompleteTask extends AsyncTask<String,Void,String>{
@@ -278,7 +188,7 @@ public class MyOrderActivity extends AppCompatActivity {
                 URL url1=new URL(url);
                 HttpURLConnection conn=(HttpURLConnection) url1.openConnection();
                 conn.setRequestMethod("GET");
-                conn.setReadTimeout(5000);
+                conn.setReadTimeout(3000);
                 try{
                     conn.connect();
                 }catch (SocketTimeoutException e){
@@ -321,7 +231,7 @@ public class MyOrderActivity extends AppCompatActivity {
                 URL url1=new URL(url);
                 HttpURLConnection conn=(HttpURLConnection) url1.openConnection();
                 conn.setRequestMethod("GET");
-                conn.setReadTimeout(5000);
+                conn.setReadTimeout(3000);
                 try{
                     conn.connect();
                 }catch (SocketTimeoutException e){
@@ -415,6 +325,7 @@ public class MyOrderActivity extends AppCompatActivity {
                 orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_accept));
                 orderStatus.setTextColor(Color.BLACK);
                 orderBtn.setText(getResources().getString(R.string.status_work));
+
             }else if(thisRow.getOrderStatus().equals("3")){
                 orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_work));
                 orderStatus.setTextColor(Color.BLACK);

@@ -42,20 +42,22 @@ import cn.kylin.huli.model.Order;
 public class OrderManageActivity extends AppCompatActivity {
     private ArrayList<Order> orderList=new ArrayList<Order>();
     private infoAdapter adapter;
+    private ListView infoList;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private int day,month,year,hour,minute,second;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_manage);
-        ListView infoList=findViewById(R.id.LV_orderList_OManage);
-        SwipeRefreshLayout swipeRefreshLayout=findViewById(R.id.SW_OrderManage);
+        infoList=findViewById(R.id.LV_orderList_OManage);
+        swipeRefreshLayout=findViewById(R.id.SW_OrderManage);
         GetOrderListTask getOrderListTask=new GetOrderListTask();
         getDateTime();
         getOrderListTask.execute("gogogo");
-        try {
-            if(!getOrderListTask.get().equals("error")||getOrderListTask.get().equals("timeout")){
-                addToInfo(getOrderListTask.get());
+        /*try {
+            //if(!getOrderListTask.get().equals("error")||getOrderListTask.get().equals("timeout")){
+                //addToInfo(getOrderListTask.get());
                 if(orderList.size()!=0){
                     adapter=new infoAdapter();
                     infoList.setAdapter(adapter);
@@ -66,14 +68,14 @@ public class OrderManageActivity extends AppCompatActivity {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
+        }*/
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 //swipeRefreshLayout.setRefreshing(true);
                 GetOrderListTask getOrderListByIdTask1=new GetOrderListTask();
                 getOrderListByIdTask1.execute("gogogo");
-                try {
+                /*try {
                     if(!getOrderListByIdTask1.get().equals("error")||!getOrderListByIdTask1.get().equals("timeout")){
                         addToInfo(getOrderListByIdTask1.get());
                         if(orderList.size()!=0){
@@ -86,8 +88,8 @@ public class OrderManageActivity extends AppCompatActivity {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                }
-                swipeRefreshLayout.setRefreshing(false);
+                }*/
+                //swipeRefreshLayout.setRefreshing(false);
             }
         });
 
@@ -111,7 +113,7 @@ public class OrderManageActivity extends AppCompatActivity {
                 URL url1=new URL(url);
                 HttpURLConnection conn=(HttpURLConnection) url1.openConnection();
                 conn.setRequestMethod("GET");
-                conn.setReadTimeout(5000);
+                conn.setReadTimeout(3000);
                 try{
                     conn.connect();
                 }catch (SocketTimeoutException e){
@@ -139,6 +141,39 @@ public class OrderManageActivity extends AppCompatActivity {
 
             return buffer.toString();
             //return null;
+        }
+        @Override
+        protected void onPostExecute(String result){
+            super.onPostExecute(result);
+            orderList.clear();
+            if(!result.equals("error")){
+                JSONArray jsonArray = null;
+                try {
+                    jsonArray = new JSONArray(result);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject=jsonArray.getJSONObject(i);
+                        Long id=jsonObject.getLong("id");
+                        String ordername=jsonObject.getString("ordername");
+                        Double orderprice=jsonObject.getDouble("orderprice");
+                        String orderplace=jsonObject.getString("orderplace");
+                        Double orderpaid=jsonObject.getDouble("orderpaid");
+                        String orderStart=jsonObject.getString("orderstart");
+                        String orderend=jsonObject.getString("orderend");
+                        String orderStatus=jsonObject.getString("status");
+                        String cusPhone=jsonObject.getString("cusphone");
+                        int status=Integer.parseInt(orderStatus);
+                        Order tmpOrder = new Order(id, ordername, orderplace, orderend, orderStart, orderprice, orderpaid, orderStatus,cusPhone);
+                        orderList.add(tmpOrder);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if(orderList.size()!=0){
+                    adapter=new infoAdapter();
+                    infoList.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
+                }
+            }
         }
     }
 
@@ -156,7 +191,7 @@ public class OrderManageActivity extends AppCompatActivity {
                 URL url1=new URL(url);
                 HttpURLConnection conn=(HttpURLConnection) url1.openConnection();
                 conn.setRequestMethod("GET");
-                conn.setReadTimeout(5000);
+                conn.setReadTimeout(3000);
                 try{
                     conn.connect();
                 }catch (SocketTimeoutException e){
@@ -185,6 +220,39 @@ public class OrderManageActivity extends AppCompatActivity {
             return buffer.toString();
             //return null;
         }
+        @Override
+        protected void onPostExecute(String result){
+            super.onPostExecute(result);
+            orderList.clear();
+            if(!result.equals("error")){
+                JSONArray jsonArray = null;
+                try {
+                    jsonArray = new JSONArray(result);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject=jsonArray.getJSONObject(i);
+                        Long id=jsonObject.getLong("id");
+                        String ordername=jsonObject.getString("ordername");
+                        Double orderprice=jsonObject.getDouble("orderprice");
+                        String orderplace=jsonObject.getString("orderplace");
+                        Double orderpaid=jsonObject.getDouble("orderpaid");
+                        String orderStart=jsonObject.getString("orderstart");
+                        String orderend=jsonObject.getString("orderend");
+                        String orderStatus=jsonObject.getString("status");
+                        String cusPhone=jsonObject.getString("cusphone");
+                        int status=Integer.parseInt(orderStatus);
+                        Order tmpOrder = new Order(id, ordername, orderplace, orderend, orderStart, orderprice, orderpaid, orderStatus,cusPhone);
+                        orderList.add(tmpOrder);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if(orderList.size()!=0){
+                    adapter=new infoAdapter();
+                    infoList.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        }
     }
 
     public class GetOrderListTask extends AsyncTask<String,Void,String>{
@@ -201,7 +269,7 @@ public class OrderManageActivity extends AppCompatActivity {
                 URL url1=new URL(mUrl);
                 HttpURLConnection conn=(HttpURLConnection) url1.openConnection();
                 conn.setRequestMethod("GET");
-                conn.setReadTimeout(5000);
+                conn.setReadTimeout(3000);
                 try{
                     conn.connect();
                 }catch (SocketTimeoutException e){
@@ -220,7 +288,7 @@ public class OrderManageActivity extends AppCompatActivity {
                         buffer.append(str);
                     }
                 }
-                addToInfo(buffer.toString());
+                //addToInfo(buffer.toString());
             }catch (Exception e){
                 e.printStackTrace();
                 return "error";
@@ -229,6 +297,41 @@ public class OrderManageActivity extends AppCompatActivity {
 
             return buffer.toString();
             //return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result){
+            super.onPostExecute(result);
+            orderList.clear();
+            if(!result.equals("error")){
+                JSONArray jsonArray = null;
+                try {
+                    jsonArray = new JSONArray(result);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject=jsonArray.getJSONObject(i);
+                        Long id=jsonObject.getLong("id");
+                        String ordername=jsonObject.getString("ordername");
+                        Double orderprice=jsonObject.getDouble("orderprice");
+                        String orderplace=jsonObject.getString("orderplace");
+                        Double orderpaid=jsonObject.getDouble("orderpaid");
+                        String orderStart=jsonObject.getString("orderstart");
+                        String orderend=jsonObject.getString("orderend");
+                        String orderStatus=jsonObject.getString("status");
+                        String cusPhone=jsonObject.getString("cusphone");
+                        int status=Integer.parseInt(orderStatus);
+                        Order tmpOrder = new Order(id, ordername, orderplace, orderend, orderStart, orderprice, orderpaid, orderStatus,cusPhone);
+                        orderList.add(tmpOrder);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if(orderList.size()!=0){
+                    adapter=new infoAdapter();
+                    infoList.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
+                }
+            }
+            swipeRefreshLayout.setRefreshing(false);
         }
     }
     private void addToInfo(String result){

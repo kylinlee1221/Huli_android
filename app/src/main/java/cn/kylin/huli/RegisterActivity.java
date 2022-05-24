@@ -2,6 +2,7 @@ package cn.kylin.huli;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +10,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.InputStreamReader;
 import java.math.BigInteger;
@@ -18,6 +23,7 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -89,7 +95,7 @@ public class RegisterActivity extends AppCompatActivity {
                 URL url1=new URL(url);
                 HttpURLConnection conn=(HttpURLConnection) url1.openConnection();
                 conn.setRequestMethod("GET");
-                conn.setReadTimeout(5000);
+                conn.setReadTimeout(3000);
                 try{
                     conn.connect();
                 }catch (SocketTimeoutException e){
@@ -114,6 +120,29 @@ public class RegisterActivity extends AppCompatActivity {
             }
             Log.e("result",buffer.toString());
             return buffer.toString();
+        }
+
+        @Override
+        protected void onPostExecute(String result){
+            super.onPostExecute(result);
+            if(result.equals("timeout")||result.equals("error")){
+                Toast.makeText(RegisterActivity.this,result,Toast.LENGTH_LONG).show();
+            }else{
+                try{
+                    JSONObject jsonObject=new JSONObject(result);
+                    if(jsonObject.getString("status").equals("1")){
+                        Toast.makeText(RegisterActivity.this,jsonObject.getString("msgs"),Toast.LENGTH_LONG).show();
+                        Intent intent=new Intent(RegisterActivity.this,Login.class);
+                        startActivity(intent);
+                        finish();
+                    }else{
+                        Toast.makeText(RegisterActivity.this,jsonObject.getString("msgs"),Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
         }
     }
 

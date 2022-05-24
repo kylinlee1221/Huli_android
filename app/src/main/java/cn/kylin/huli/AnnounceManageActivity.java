@@ -200,7 +200,7 @@ public class AnnounceManageActivity extends AppCompatActivity {
                 URL url1=new URL(url);
                 HttpURLConnection conn=(HttpURLConnection) url1.openConnection();
                 conn.setRequestMethod("GET");
-                conn.setReadTimeout(5000);
+                conn.setReadTimeout(3000);
                 try{
                     conn.connect();
                 }catch (SocketTimeoutException e){
@@ -263,7 +263,7 @@ public class AnnounceManageActivity extends AppCompatActivity {
                 URL url1=new URL(url);
                 HttpURLConnection conn=(HttpURLConnection) url1.openConnection();
                 conn.setRequestMethod("GET");
-                conn.setReadTimeout(5000);
+                conn.setReadTimeout(3000);
                 try{
                     conn.connect();
                 }catch (SocketTimeoutException e){
@@ -308,7 +308,7 @@ public class AnnounceManageActivity extends AppCompatActivity {
                 URL url1=new URL(url);
                 HttpURLConnection conn=(HttpURLConnection) url1.openConnection();
                 conn.setRequestMethod("GET");
-                conn.setReadTimeout(5000);
+                conn.setReadTimeout(3000);
                 try{
                     conn.connect();
                 }catch (SocketTimeoutException e){

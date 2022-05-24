@@ -2,6 +2,7 @@ package cn.kylin.huli;
 
 import static java.lang.Thread.*;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -12,6 +13,7 @@ import android.net.Network;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -49,15 +51,16 @@ import cn.kylin.huli.view.HomeAdapter;
 public class MainActivity extends AppCompatActivity {
     BulletinView bulletinView;
     HomeAdapter adapter;
-    List<String> infoList=new ArrayList<String>();
+    private List<String> infoList=new ArrayList<String>();
     private int day,month,year,hour,minute,second;
+    private ViewFlipper viewFlipper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //UMConfigure.init(this,"6263de1a30a4f67780b312f7","Umeng",UMConfigure.DEVICE_TYPE_PHONE,"");
-        ViewFlipper viewFlipper=findViewById(R.id.VF_NotifyBar2);
+        viewFlipper=findViewById(R.id.VF_NotifyBar2);
         RadioButton myInfoBtn=findViewById(R.id.RB_myInfo_Main);
         ImageButton closeAnnouncement=findViewById(R.id.IB_closeAnnouncement_Main),orderMarketBtn=findViewById(R.id.IB_orderMarket_Main),myOrderBtn=findViewById(R.id.IB_myOrder_Main);
         LinearLayout announceLayout=findViewById(R.id.LL_Announce_Main);
@@ -67,22 +70,7 @@ public class MainActivity extends AppCompatActivity {
         getDateTime();
         GetAnnouncementTask getAnnouncementTask=new GetAnnouncementTask();
         getAnnouncementTask.execute("abc");
-        String result="";
-        try {
-            result=getAnnouncementTask.get();
-            Log.e("res in main",result);
-            /*if(infoList!=null){
-                adapter=new HomeAdapter(infoList);
-                bulletinView.setAdapter(adapter);
-                bulletinView.setOnItemClickListener(new BulletinView.OnItemClickListener() {
-                    @Override
-                    public void onItemClickListener(Object itemData, int pointer, View view) {
-                        if(itemData instanceof String){
-                            Toast.makeText(MainActivity.this, (String) itemData, Toast.LENGTH_LONG).show();
-                        }
-                    }
-                });
-            }*/
+        if(infoList.size()>0){
             viewFlipper.setInAnimation(getApplicationContext(), R.anim.anim_marquee_in);//设置滚动进入动画
             viewFlipper.setOutAnimation(getApplicationContext(), R.anim.anim_marquee_out);//设置滚动退出动画
             viewFlipper.setFlipInterval(3000);//设置滚动间隔
@@ -92,14 +80,20 @@ public class MainActivity extends AppCompatActivity {
             if (viewFlipper.getChildCount() > 1) {
                 viewFlipper.startFlipping();//开始滚动，如果只有一个子view，则只有进入动画不会有退出动画
             }
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        }else{
+            GetAnnouncementTask getAnnouncementTask1=new GetAnnouncementTask();
+            getAnnouncementTask1.execute("abc");
+            viewFlipper.setInAnimation(getApplicationContext(), R.anim.anim_marquee_in);//设置滚动进入动画
+            viewFlipper.setOutAnimation(getApplicationContext(), R.anim.anim_marquee_out);//设置滚动退出动画
+            viewFlipper.setFlipInterval(3000);//设置滚动间隔
+            for (int i = 0; i < infoList.size(); i++) {
+                viewFlipper.addView(getTextView(infoList.get(i)));//添加子布局
+            }
+            if (viewFlipper.getChildCount() > 1) {
+                viewFlipper.startFlipping();//开始滚动，如果只有一个子view，则只有进入动画不会有退出动画
+            }
         }
-        //AsyncTask.Status status=getAnnouncementTask.getStatus();
-        //if (status.)
-        //sleep(5000);
+
         SharedPreferences sp=getSharedPreferences("login",MODE_PRIVATE);
         String user_fullname=sp.getString("fullname","empty");
         Long userid=sp.getLong("id",-1);
@@ -133,95 +127,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public class StartCheckInTask extends AsyncTask<String,Void,String> {
-
-        private String mCheckInUrl = "https://huli.kylin1221.com/apis/checkIn.php?userid={0}";
-
-        @Override
-        protected String doInBackground(String... strings) {
-            String[] params = strings[0].split("/");
-            String user = params[0];
-            Log.e("user", user);
-            String url = MessageFormat.format(mCheckInUrl, user);
-            Log.e("url", url);
-            StringBuffer buffer = new StringBuffer();
-            try {
-                URL url1 = new URL(url);
-                HttpURLConnection conn = (HttpURLConnection) url1.openConnection();
-                conn.setRequestMethod("GET");
-                conn.setReadTimeout(5000);
-                try {
-                    conn.connect();
-                } catch (SocketTimeoutException e) {
-                    e.printStackTrace();
-                    return "timeout";
-                }
-                int rCode = conn.getResponseCode();
-                if (rCode == 200) {
-                    InputStreamReader reader = new InputStreamReader(conn.getInputStream());
-                    char[] charArr = new char[1024 * 8];
-                    int len = 0;
-                    while ((len = reader.read(charArr)) != -1) {
-                        // 字符数组转字符串
-                        String str = new String(charArr, 0, len);
-                        // 在结尾追加字符串
-                        buffer.append(str);
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                return "error";
-            }
-            Log.e("result", buffer.toString());
-
-            return buffer.toString();
-        }
-    }
-
-    public class StartCheckOutTask extends AsyncTask<String,Void,String> {
-
-        private String mCheckInUrl = "https://huli.kylin1221.com/apis/checkOut.php?userid={0}";
-
-        @Override
-        protected String doInBackground(String... strings) {
-            String[] params = strings[0].split("/");
-            String user = params[0];
-            Log.e("user", user);
-            String url = MessageFormat.format(mCheckInUrl, user);
-            Log.e("url", url);
-            StringBuffer buffer = new StringBuffer();
-            try {
-                URL url1 = new URL(url);
-                HttpURLConnection conn = (HttpURLConnection) url1.openConnection();
-                conn.setRequestMethod("GET");
-                conn.setReadTimeout(5000);
-                try {
-                    conn.connect();
-                } catch (SocketTimeoutException e) {
-                    e.printStackTrace();
-                    return "timeout";
-                }
-                int rCode = conn.getResponseCode();
-                if (rCode == 200) {
-                    InputStreamReader reader = new InputStreamReader(conn.getInputStream());
-                    char[] charArr = new char[1024 * 8];
-                    int len = 0;
-                    while ((len = reader.read(charArr)) != -1) {
-                        // 字符数组转字符串
-                        String str = new String(charArr, 0, len);
-                        // 在结尾追加字符串
-                        buffer.append(str);
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                return "error";
-            }
-            Log.e("result", buffer.toString());
-
-            return buffer.toString();
-        }
-    }
 
     public class GetAnnouncementTask extends AsyncTask<String,Void,String>{
 
@@ -234,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
                 URL url1=new URL(url);
                 HttpURLConnection conn=(HttpURLConnection) url1.openConnection();
                 conn.setRequestMethod("GET");
-                conn.setReadTimeout(5000);
+                conn.setReadTimeout(3000);
                 try{
                     conn.connect();
                 }catch (SocketTimeoutException e){
@@ -253,13 +158,50 @@ public class MainActivity extends AppCompatActivity {
                         buffer.append(str);
                     }
                 }
-                insertIntoData(buffer.toString());
+                //insertIntoData(buffer.toString());
             }catch (Exception e) {
                 e.printStackTrace();
                 return "error";
             }
             Log.e("result",buffer.toString());
             return buffer.toString();
+        }
+
+        @Override
+        protected void onPostExecute(String result){
+            super.onPostExecute(result);
+            try {
+                //JSONObject jsonObject=new JSONObject(result);
+                JSONArray jsonArray=new JSONArray(result);
+                for (int i=0;i<jsonArray.length();i++){
+                    JSONObject jsonObject=jsonArray.getJSONObject(i);
+                    SimpleDateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                    Date date1=dateFormat.parse(jsonObject.getString("endtime"));
+                    String nowDate=String.valueOf(year)+"-"+String.valueOf(month)+"-"+String.valueOf(day)+" "+String.valueOf(hour)+":"+String.valueOf(minute);
+                    //Log.e("nowDate",nowDate);
+                    Date date2=dateFormat.parse(nowDate);
+                    if(date2.getTime()<date1.getTime()){
+                        infoList.add(jsonObject.getString("info"));
+                        //Log.e("time1",date1.toString());
+                        //Log.e("time2",date2.toString());
+                    }
+                }
+            }catch (JSONException e){
+                e.printStackTrace();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            if(infoList.size()>0){
+                viewFlipper.setInAnimation(getApplicationContext(), R.anim.anim_marquee_in);//设置滚动进入动画
+                viewFlipper.setOutAnimation(getApplicationContext(), R.anim.anim_marquee_out);//设置滚动退出动画
+                viewFlipper.setFlipInterval(3000);//设置滚动间隔
+                for (int i = 0; i < infoList.size(); i++) {
+                    viewFlipper.addView(getTextView(infoList.get(i)));//添加子布局
+                }
+                if (viewFlipper.getChildCount() > 1) {
+                    viewFlipper.startFlipping();//开始滚动，如果只有一个子view，则只有进入动画不会有退出动画
+                }
+            }
         }
     }
 
@@ -324,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onRestart() {
         super.onRestart();
         //我们自己的方法
-        SharedPreferences sp=getSharedPreferences("login",MODE_PRIVATE);
+        /*SharedPreferences sp=getSharedPreferences("login",MODE_PRIVATE);
         if(!sp.getBoolean("checked",true)){
             sp.edit()
                     .remove("fullname")
@@ -333,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
                     .remove("role")
                     .remove("id")
                     .remove("checked").apply();
-        }
+        }*/
     }
 
     @Override

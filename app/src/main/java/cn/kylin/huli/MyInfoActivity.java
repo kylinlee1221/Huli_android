@@ -1,8 +1,10 @@
 package cn.kylin.huli;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -26,6 +28,7 @@ import java.text.MessageFormat;
 import java.util.concurrent.ExecutionException;
 
 public class MyInfoActivity extends AppCompatActivity {
+    private TextView infoTV;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -34,7 +37,7 @@ public class MyInfoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_my_info);
         Button myOrderBtn=findViewById(R.id.BT_myOrder_MyInfo),addOrderBtn=findViewById(R.id.BT_addOrder_MyInfo),marketBtn=findViewById(R.id.BT_orderMarket_MyInfo);
         Button orderManageBtn=findViewById(R.id.BT_orderManage_MyInfo),announceManageBtn=findViewById(R.id.BT_announceManage_MyInfo),logoutBtn=findViewById(R.id.BT_logout_MyInfo);
-        TextView infoTV=findViewById(R.id.TV_userInfo_MyInfo);
+        infoTV=findViewById(R.id.TV_userInfo_MyInfo);
         SharedPreferences sp=getSharedPreferences("login",MODE_PRIVATE);
         String user_fullname=sp.getString("fullname","empty");
         Long userid=sp.getLong("id",-1);
@@ -45,37 +48,18 @@ public class MyInfoActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }else{
-            GetUserInfoTask getUserInfoTask=new GetUserInfoTask();
-            getUserInfoTask.execute(String.valueOf(userid));
-            try{
-                String result=getUserInfoTask.get();
-                if(result.trim().equals("timeout")||result.trim().equals("error")){
-                    Toast.makeText(this,result,Toast.LENGTH_LONG).show();
-                }else{
-                    try {
-                        JSONObject jsonObject=new JSONObject(result);
-                        String telephone=jsonObject.getString("telephone");
-                        String fullname=jsonObject.getString("fullname");
-                        String money=jsonObject.getString("money");
-                        String role=jsonObject.getString("role");
-                        if(role.equals("0")){
-                            infoTV.setText(getResources().getString(R.string.user_info_role_user)+"\n"+getResources().getString(R.string.user_info_fullname)+fullname+"\n"+getResources().getString(R.string.user_info_telephone)+telephone+"\n"+getResources().getString(R.string.user_info_money)+money);
-                        }else{
-                            infoTV.setText(getResources().getString(R.string.user_info_role_admin)+"\n"+getResources().getString(R.string.user_info_fullname)+fullname+"\n"+getResources().getString(R.string.user_info_telephone)+telephone+"\n"+getResources().getString(R.string.user_info_money)+money);
-                        }
-                        infoTV.setTextSize(17);
-                        infoTV.setTextColor(Color.BLACK);
-                        infoTV.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
+            ProgressDialog progressDialog=new ProgressDialog(MyInfoActivity.this);
+            //AlertDialog alertDialog=new AlertDialog(this);
+            progressDialog.setTitle("Loading...");
+            progressDialog.show();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    GetUserInfoTask getUserInfoTask=new GetUserInfoTask();
+                    getUserInfoTask.execute(String.valueOf(userid));
+                    progressDialog.dismiss();
                 }
-            } catch (ExecutionException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            }).run();
             logoutBtn.setOnClickListener(click->{
                     sp.edit()
                             .remove("fullname")
@@ -90,7 +74,7 @@ public class MyInfoActivity extends AppCompatActivity {
                     finish();
             });
             myOrderBtn.setOnClickListener(click->{
-                Intent intent=new Intent(this,AddOrderActivity.class);
+                Intent intent=new Intent(this,MyOrderActivity.class);
                 startActivity(intent);
                 finish();
             });
@@ -146,7 +130,7 @@ public class MyInfoActivity extends AppCompatActivity {
                 URL url1=new URL(url);
                 HttpURLConnection conn=(HttpURLConnection) url1.openConnection();
                 conn.setRequestMethod("GET");
-                conn.setReadTimeout(5000);
+                conn.setReadTimeout(3000);
                 try{
                     conn.connect();
                 }catch (SocketTimeoutException e){
@@ -165,14 +149,44 @@ public class MyInfoActivity extends AppCompatActivity {
                         buffer.append(str);
                     }
                 }
+                String result=buffer.toString();
+                //Log.e("result",result);
+
                 //addToInfo(buffer.toString());
             }catch (Exception e){
                 e.printStackTrace();
                 return "error";
             }
-            Log.e("result",buffer.toString());
+            //Log.e("result",buffer.toString());
 
             return buffer.toString();
+        }
+
+        @Override
+        protected void onPostExecute(String string){
+            //Log.e("post execute",string);
+            super.onPostExecute(string);
+            if(string.trim().equals("timeout")||string.trim().equals("error")){
+                Toast.makeText(MyInfoActivity.this,string,Toast.LENGTH_LONG).show();
+            }else{
+                try {
+                    JSONObject jsonObject=new JSONObject(string);
+                    String telephone=jsonObject.getString("telephone");
+                    String fullname=jsonObject.getString("fullname");
+                    String money=jsonObject.getString("money");
+                    String role=jsonObject.getString("role");
+                    if(role.equals("0")){
+                        infoTV.setText(getResources().getString(R.string.user_info_role_user)+"\n"+getResources().getString(R.string.user_info_fullname)+fullname+"\n"+getResources().getString(R.string.user_info_telephone)+telephone+"\n"+getResources().getString(R.string.user_info_money)+money);
+                    }else{
+                        infoTV.setText(getResources().getString(R.string.user_info_role_admin)+"\n"+getResources().getString(R.string.user_info_fullname)+fullname+"\n"+getResources().getString(R.string.user_info_telephone)+telephone+"\n"+getResources().getString(R.string.user_info_money)+money);
+                    }
+                    infoTV.setTextSize(17);
+                    infoTV.setTextColor(Color.BLACK);
+                    infoTV.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }
