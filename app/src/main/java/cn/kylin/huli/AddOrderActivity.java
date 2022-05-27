@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -34,45 +35,28 @@ import cn.kylin.huli.model.User;
 
 public class AddOrderActivity extends AppCompatActivity {
 
-    ArrayList<String> userList=new ArrayList<String>();
+    private ArrayList<String> userList=new ArrayList<String>();
     private int day,month,year,hour,minute,second;
+    private ArrayAdapter<String> arrayAdapter;
+    private ArrayList<User> userArrayList;
+    private Spinner userSP;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_order);
-        Spinner userSP=findViewById(R.id.SP_userChose_Add);
+        userSP=findViewById(R.id.SP_userChose_Add);
         EditText orderNameET=findViewById(R.id.ET_name_Add),moneyET=findViewById(R.id.ET_money_Add),paidET=findViewById(R.id.ET_alreadyPay_Add),placeET=findViewById(R.id.ET_place_Add);
         EditText deatisET=findViewById(R.id.ET_place_details_Add),phoneET=findViewById(R.id.ET_customerPhone_Add);
         Button dateChoser=findViewById(R.id.BT_DateChooser_Add),timeChoser=findViewById(R.id.BT_TimeChooser_Add),createOrderBtn=findViewById(R.id.BT_addOrder_Add);
         Button BeginDateChoser=findViewById(R.id.BT_DateChooser_start_Add),BeginTimeChoser=findViewById(R.id.BT_TimeChooser_start_Add);
-        ArrayList<User> userArrayList=new ArrayList<User>();
+        userArrayList=new ArrayList<User>();
         getDateTime();
-        userList.add("all");
-        ArrayAdapter<String> arrayAdapter=new ArrayAdapter<String>(this,R.layout.item_dropdown,userList);
+        //userList.add("all");
+        arrayAdapter=new ArrayAdapter<String>(this,R.layout.item_dropdown,userList);
         userSP.setAdapter(arrayAdapter);
         GetUserListTask getUserListTask=new GetUserListTask();
         getUserListTask.execute("gogogo");
-        try {
-            String result=getUserListTask.get();
-            if(!result.equals("error")) {
-                JSONArray jsonArray = new JSONArray(result);
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    userList.add(jsonObject.getString("fullname"));
-                    userArrayList.add(new User(jsonObject.getLong("id"),jsonObject.getString("fullname"),jsonObject.getString("telephone")));
-                    userSP.setAdapter(arrayAdapter);
-                }
-            }else{
-                Toast.makeText(this,"getUserList error",Toast.LENGTH_LONG).show();
-            }
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
         dateChoser.setOnClickListener(click->{
             final String[] timeChosed = {""};
             DatePickerDialog.OnDateSetListener listener=new DatePickerDialog.OnDateSetListener() {
@@ -141,18 +125,6 @@ public class AddOrderActivity extends AppCompatActivity {
                 String params=nameST+"/"+moneyST+"/"+paidST+"/"+String.valueOf(userid)+"/"+String.valueOf(toid)+"/"+time+"/"+beginTime+"/"+placeST+"/"+details+"/"+phoneST;
                 AddOrderTask addOrderTask=new AddOrderTask();
                 addOrderTask.execute(params);
-                try {
-                    String result=addOrderTask.get();
-                    if(result.equals("error")||result.equals("timeout")){
-                        Toast.makeText(this,result,Toast.LENGTH_LONG).show();
-                    }else{
-                        Toast.makeText(this,"add success",Toast.LENGTH_LONG).show();
-                    }
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
             }
 
         });
@@ -193,6 +165,26 @@ public class AddOrderActivity extends AppCompatActivity {
                 return "error";
             }
             return buffer.toString();
+        }
+
+        @Override
+        protected void onPostExecute(String result){
+            super.onPostExecute(result);
+            try {
+                if(!result.equals("error")&&!result.equals("timeout")) {
+                    JSONArray jsonArray = new JSONArray(result);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        userList.add(jsonObject.getString("fullname"));
+                        userArrayList.add(new User(jsonObject.getLong("id"),jsonObject.getString("fullname"),jsonObject.getString("telephone")));
+                        userSP.setAdapter(arrayAdapter);
+                    }
+                }else{
+                    Toast.makeText(AddOrderActivity.this,"getUserList error",Toast.LENGTH_LONG).show();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -245,6 +237,19 @@ public class AddOrderActivity extends AppCompatActivity {
             Log.e("result",buffer.toString());
 
             return buffer.toString();
+        }
+
+        @Override
+        protected void onPostExecute(String result){
+            super.onPostExecute(result);
+            if(result.equals("error")||result.equals("timeout")){
+                Toast.makeText(AddOrderActivity.this,result,Toast.LENGTH_LONG).show();
+            }else{
+                Toast.makeText(AddOrderActivity.this,"add success",Toast.LENGTH_LONG).show();
+                Intent intent=new Intent(AddOrderActivity.this,OrderManageActivity.class);
+                startActivity(intent);
+                finish();
+            }
         }
     }
 

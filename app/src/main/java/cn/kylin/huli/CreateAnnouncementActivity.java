@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -78,31 +79,6 @@ public class CreateAnnouncementActivity extends AppCompatActivity {
                 CreateAnnouncementTask createAnnouncementTask=new CreateAnnouncementTask();
                 String params=String.valueOf(userid)+"/"+announET.getText().toString()+"/"+dateChoser.getText().toString()+" "+timeChoser.getText().toString();
                 createAnnouncementTask.execute(params);
-                String result="";
-                try {
-                    result=createAnnouncementTask.get();
-                    Log.e("res in main",result);
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                if(result.trim().equals("timeout")||result.trim().equals("error")){
-                    Toast.makeText(this,result,Toast.LENGTH_LONG).show();
-                }else {
-                    try {
-                        //JSONObject jsonObject=new JSONObject(buffer.toString());
-                        //jsonObject.getJSONObject(buffer.toString());
-                        JSONObject jsonObject = new JSONObject(result);
-                        Log.e("json", jsonObject.toString());
-                        //Long id=jsonObject.getLong("id")
-                        if (jsonObject.getString("status").equals("1")) {
-                            Toast.makeText(this, "add success", Toast.LENGTH_LONG).show();
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
             }
         });
     }
@@ -162,6 +138,29 @@ public class CreateAnnouncementActivity extends AppCompatActivity {
 
             return buffer.toString();
             //return null;
+        }
+        @Override
+        protected void onPostExecute(String result){
+            super.onPostExecute(result);
+            if(result.trim().equals("timeout")||result.trim().equals("error")){
+                Toast.makeText(CreateAnnouncementActivity.this,result,Toast.LENGTH_LONG).show();
+            }else {
+                try {
+                    //JSONObject jsonObject=new JSONObject(buffer.toString());
+                    //jsonObject.getJSONObject(buffer.toString());
+                    JSONObject jsonObject = new JSONObject(result);
+                    Log.e("json", jsonObject.toString());
+                    //Long id=jsonObject.getLong("id")
+                    if (jsonObject.getString("status").equals("1")) {
+                        Toast.makeText(CreateAnnouncementActivity.this, "add success", Toast.LENGTH_LONG).show();
+                        Intent intent=new Intent(CreateAnnouncementActivity.this,AnnounceManageActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
     public void getDateTime(){

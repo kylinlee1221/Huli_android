@@ -44,61 +44,24 @@ public class AnnounceManageActivity extends AppCompatActivity {
     private ArrayList<Announcement> announcementList=new ArrayList<Announcement>();
     private int day,month,year,hour,minute,second;
     private infoAdapter adapter;
+    private ListView anList;
+    private SwipeRefreshLayout swipeRefreshLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_announce_manage);
         TextView hintTV=findViewById(R.id.TV_Hint_AManage);
-        ListView anList=findViewById(R.id.LV_AList_Amanage);
-        SwipeRefreshLayout swipeRefreshLayout=findViewById(R.id.swiperefresh);
+        anList=findViewById(R.id.LV_AList_Amanage);
+        swipeRefreshLayout=findViewById(R.id.swiperefresh);
         Button addButton=findViewById(R.id.BT_addAnnouncement_Manage);
         getDateTime();
         GetAnnouncementTask getAnnouncementTask=new GetAnnouncementTask();
         getAnnouncementTask.execute("gogogo");
-        String getResult="";
-        try {
-            getResult=getAnnouncementTask.get();
-            if(getResult.trim().equals("timeout")||getResult.trim().equals("error")){
-                Toast.makeText(this,"get error",Toast.LENGTH_LONG).show();
-            }else{
-                if(announcementList.size()!=0){
-                    adapter=new infoAdapter();
-                    anList.setAdapter(adapter);
-                    adapter.notifyDataSetChanged();
-                }
-
-            }
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 GetAnnouncementTask getIn=new GetAnnouncementTask();
-                String resIn="";
                 getIn.execute("gogogo");
-                try {
-                    resIn=getIn.get();
-                    if(resIn.trim().equals("timeout")||resIn.trim().equals("error")){
-                        Toast.makeText(AnnounceManageActivity.this,"get error",Toast.LENGTH_LONG).show();
-                        swipeRefreshLayout.setRefreshing(false);
-                    }else{
-                        if(announcementList.size()!=0){
-                            adapter=new infoAdapter();
-                            anList.setAdapter(adapter);
-                            adapter.notifyDataSetChanged();
-
-                        }
-
-                    }
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                swipeRefreshLayout.setRefreshing(false);
             }
 
         });
@@ -122,63 +85,15 @@ public class AnnounceManageActivity extends AppCompatActivity {
                     String params="update/"+String.valueOf(tmpA.getId())+"/"+newInfo;
                     UpdateAnnounceTask updateAnnounceTask=new UpdateAnnounceTask();
                     updateAnnounceTask.execute(params);
-                    String updateRes="",getResultIn="";
-                    try{
-                        updateRes=updateAnnounceTask.get();
-                        Log.e("update res",updateRes);
-                        if(updateRes.trim().equals("timeout")||updateRes.trim().equals("error")){
-                            Toast.makeText(AnnounceManageActivity.this,updateRes,Toast.LENGTH_LONG).show();
-                        }else{
-                            GetAnnouncementTask getInDelete=new GetAnnouncementTask();
-                            getInDelete.execute("gogogo");
-                            getResultIn=getInDelete.get();
-                            if(getResultIn.trim().equals("timeout")||getResultIn.trim().equals("error")){
-                                Toast.makeText(this,"get error",Toast.LENGTH_LONG).show();
-                            }else{
-                                if(announcementList.size()!=0){
-                                    adapter=new infoAdapter();
-                                    anList.setAdapter(adapter);
-                                    adapter.notifyDataSetChanged();
-                                }
-                            }
-                        }
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    GetAnnouncementTask getInDelete=new GetAnnouncementTask();
+                    getInDelete.execute("gogogo");
                 }).create().show();
             }).setNegativeButton("Delete",(click,arg)->{
                 DeleteAnnouncementTask deleteAnnouncementTask=new DeleteAnnouncementTask();
                 String params="delete/"+String.valueOf(tmpA.getId());
                 deleteAnnouncementTask.execute(params);
-                String deleteRes="",getResultIn="";
-                try {
-                    deleteRes=deleteAnnouncementTask.get();
-                    Log.e("delete res",deleteRes);
-                    if(deleteRes.trim().equals("timeout")||deleteRes.trim().equals("error")){
-                        Toast.makeText(AnnounceManageActivity.this,deleteRes,Toast.LENGTH_LONG).show();
-                    }else{
-                        GetAnnouncementTask getInDelete=new GetAnnouncementTask();
-                        getInDelete.execute("gogogo");
-                        getResultIn=getInDelete.get();
-                        if(getResultIn.trim().equals("timeout")||getResultIn.trim().equals("error")){
-                            Toast.makeText(this,"get error",Toast.LENGTH_LONG).show();
-                        }else{
-                            if(announcementList.size()!=0){
-                                adapter=new infoAdapter();
-                                anList.setAdapter(adapter);
-                                adapter.notifyDataSetChanged();
-                            }
-                        }
-                    }
-                    //getAnnouncementTask.execute("gogogo");
-
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                GetAnnouncementTask getInDelete=new GetAnnouncementTask();
+                getInDelete.execute("gogogo");
             }).create().show();
             return true;
         });
@@ -219,13 +134,42 @@ public class AnnounceManageActivity extends AppCompatActivity {
                         buffer.append(str);
                     }
                 }
-                insertIntoData(buffer.toString());
+                //insertIntoData(buffer.toString());
             }catch (Exception e) {
                 e.printStackTrace();
                 return "error";
             }
             Log.e("result",buffer.toString());
             return buffer.toString();
+        }
+        @Override
+        protected void onPostExecute(String result){
+            super.onPostExecute(result);
+            if(result.equals("timeout")||result.equals("error")){
+                Toast.makeText(AnnounceManageActivity.this,result,Toast.LENGTH_LONG).show();
+            }else{
+                announcementList.clear();
+                try{
+                    JSONArray jsonArray=new JSONArray(result);
+                    for(int i=0;i<jsonArray.length();i++){
+                        JSONObject jsonObject=jsonArray.getJSONObject(i);
+                        Long id=jsonObject.getLong("id");
+                        Long sendby=jsonObject.getLong("sendby");
+                        String info=jsonObject.getString("info");
+                        String endtime=jsonObject.getString("endtime");
+                        announcementList.add(new Announcement(id,sendby,info,endtime));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if(announcementList.size()!=0){
+                    adapter=new infoAdapter();
+                    anList.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
+                }
+
+            }
+            swipeRefreshLayout.setRefreshing(false);
         }
     }
 
@@ -290,6 +234,34 @@ public class AnnounceManageActivity extends AppCompatActivity {
 
             return buffer.toString();
         }
+
+        @Override
+        protected void onPostExecute(String result){
+            super.onPostExecute(result);
+            if(result.trim().equals("timeout")||result.trim().equals("error")){
+                Toast.makeText(AnnounceManageActivity.this,result,Toast.LENGTH_LONG).show();
+            }else{
+                announcementList.clear();
+                try{
+                    JSONArray jsonArray=new JSONArray(result);
+                    for(int i=0;i<jsonArray.length();i++){
+                        JSONObject jsonObject=jsonArray.getJSONObject(i);
+                        Long id=jsonObject.getLong("id");
+                        Long sendby=jsonObject.getLong("sendby");
+                        String info=jsonObject.getString("info");
+                        String endtime=jsonObject.getString("endtime");
+                        announcementList.add(new Announcement(id,sendby,info,endtime));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if(announcementList.size()!=0){
+                    adapter=new infoAdapter();
+                    anList.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        }
     }
 
     public class DeleteAnnouncementTask extends AsyncTask<String,Void,String>{
@@ -334,6 +306,33 @@ public class AnnounceManageActivity extends AppCompatActivity {
             Log.e("result",buffer.toString());
 
             return buffer.toString();
+        }
+        @Override
+        protected void onPostExecute(String result){
+            super.onPostExecute(result);
+            if(result.trim().equals("timeout")||result.trim().equals("error")){
+                Toast.makeText(AnnounceManageActivity.this,result,Toast.LENGTH_LONG).show();
+            }else{
+                announcementList.clear();
+                try{
+                    JSONArray jsonArray=new JSONArray(result);
+                    for(int i=0;i<jsonArray.length();i++){
+                        JSONObject jsonObject=jsonArray.getJSONObject(i);
+                        Long id=jsonObject.getLong("id");
+                        Long sendby=jsonObject.getLong("sendby");
+                        String info=jsonObject.getString("info");
+                        String endtime=jsonObject.getString("endtime");
+                        announcementList.add(new Announcement(id,sendby,info,endtime));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                if(announcementList.size()!=0){
+                    adapter=new infoAdapter();
+                    anList.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
+                }
+            }
         }
     }
 

@@ -55,41 +55,11 @@ public class OrderManageActivity extends AppCompatActivity {
         GetOrderListTask getOrderListTask=new GetOrderListTask();
         getDateTime();
         getOrderListTask.execute("gogogo");
-        /*try {
-            //if(!getOrderListTask.get().equals("error")||getOrderListTask.get().equals("timeout")){
-                //addToInfo(getOrderListTask.get());
-                if(orderList.size()!=0){
-                    adapter=new infoAdapter();
-                    infoList.setAdapter(adapter);
-                    adapter.notifyDataSetChanged();
-                }
-            }
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }*/
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                //swipeRefreshLayout.setRefreshing(true);
                 GetOrderListTask getOrderListByIdTask1=new GetOrderListTask();
                 getOrderListByIdTask1.execute("gogogo");
-                /*try {
-                    if(!getOrderListByIdTask1.get().equals("error")||!getOrderListByIdTask1.get().equals("timeout")){
-                        addToInfo(getOrderListByIdTask1.get());
-                        if(orderList.size()!=0){
-                            adapter=new infoAdapter();
-                            infoList.setAdapter(adapter);
-                            adapter.notifyDataSetChanged();
-                        }
-                    }
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }*/
-                //swipeRefreshLayout.setRefreshing(false);
             }
         });
 
@@ -145,34 +115,22 @@ public class OrderManageActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result){
             super.onPostExecute(result);
-            orderList.clear();
-            if(!result.equals("error")){
-                JSONArray jsonArray = null;
+            if(!result.equals("error")&&!result.equals("timeout")&&!result.equals("[]")){
+                //JSONArray jsonArray = null;
                 try {
-                    jsonArray = new JSONArray(result);
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject jsonObject=jsonArray.getJSONObject(i);
-                        Long id=jsonObject.getLong("id");
-                        String ordername=jsonObject.getString("ordername");
-                        Double orderprice=jsonObject.getDouble("orderprice");
-                        String orderplace=jsonObject.getString("orderplace");
-                        Double orderpaid=jsonObject.getDouble("orderpaid");
-                        String orderStart=jsonObject.getString("orderstart");
-                        String orderend=jsonObject.getString("orderend");
-                        String orderStatus=jsonObject.getString("status");
-                        String cusPhone=jsonObject.getString("cusphone");
-                        int status=Integer.parseInt(orderStatus);
-                        Order tmpOrder = new Order(id, ordername, orderplace, orderend, orderStart, orderprice, orderpaid, orderStatus,cusPhone);
-                        orderList.add(tmpOrder);
+                    JSONObject jsonObject=new JSONObject(result);
+                    if(jsonObject.getString("status").equals("1")){
+                        Toast.makeText(OrderManageActivity.this,jsonObject.getString("msgs"),Toast.LENGTH_LONG).show();
+                        GetOrderListTask getOrderListTask=new GetOrderListTask();
+                        getOrderListTask.execute("gogogo");
+                    }else{
+                        Toast.makeText(OrderManageActivity.this,"update failed",Toast.LENGTH_LONG).show();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                if(orderList.size()!=0){
-                    adapter=new infoAdapter();
-                    infoList.setAdapter(adapter);
-                    adapter.notifyDataSetChanged();
-                }
+            }else{
+                Toast.makeText(OrderManageActivity.this,"connection error",Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -223,34 +181,23 @@ public class OrderManageActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result){
             super.onPostExecute(result);
-            orderList.clear();
-            if(!result.equals("error")){
-                JSONArray jsonArray = null;
+            //orderList.clear();
+            if(!result.equals("error")&&!result.equals("timeout")&&!result.equals("[]")){
+                //JSONArray jsonArray = null;
                 try {
-                    jsonArray = new JSONArray(result);
-                    for (int i = 0; i < jsonArray.length(); i++) {
-                        JSONObject jsonObject=jsonArray.getJSONObject(i);
-                        Long id=jsonObject.getLong("id");
-                        String ordername=jsonObject.getString("ordername");
-                        Double orderprice=jsonObject.getDouble("orderprice");
-                        String orderplace=jsonObject.getString("orderplace");
-                        Double orderpaid=jsonObject.getDouble("orderpaid");
-                        String orderStart=jsonObject.getString("orderstart");
-                        String orderend=jsonObject.getString("orderend");
-                        String orderStatus=jsonObject.getString("status");
-                        String cusPhone=jsonObject.getString("cusphone");
-                        int status=Integer.parseInt(orderStatus);
-                        Order tmpOrder = new Order(id, ordername, orderplace, orderend, orderStart, orderprice, orderpaid, orderStatus,cusPhone);
-                        orderList.add(tmpOrder);
+                    JSONObject jsonObject=new JSONObject(result);
+                    if(jsonObject.getString("status").equals("1")){
+                        Toast.makeText(OrderManageActivity.this,jsonObject.getString("msgs"),Toast.LENGTH_LONG).show();
+                        GetOrderListTask getOrderListTask=new GetOrderListTask();
+                        getOrderListTask.execute("gogogo");
+                    }else{
+                        Toast.makeText(OrderManageActivity.this,"delete failed",Toast.LENGTH_LONG).show();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                if(orderList.size()!=0){
-                    adapter=new infoAdapter();
-                    infoList.setAdapter(adapter);
-                    adapter.notifyDataSetChanged();
-                }
+            }else{
+                Toast.makeText(OrderManageActivity.this,"connection error",Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -441,31 +388,6 @@ public class OrderManageActivity extends AppCompatActivity {
                 deleteAlert.setPositiveButton(getResources().getString(R.string.yes_btn),(click1,arg1)->{
                     DeleteOrderTask deleteOrderTask=new DeleteOrderTask();
                     deleteOrderTask.execute(params);
-                    String updateRes="",getResultIn="";
-                    try{
-                        updateRes=deleteOrderTask.get();
-                        Log.e("update res",updateRes);
-                        if(updateRes.trim().equals("timeout")||updateRes.trim().equals("error")){
-                            Toast.makeText(OrderManageActivity.this,updateRes,Toast.LENGTH_LONG).show();
-                        }else{
-                            GetOrderListTask getInDelete=new GetOrderListTask();
-                            getInDelete.execute("gogogo");
-                            getResultIn=getInDelete.get();
-                            if(getResultIn.trim().equals("timeout")||getResultIn.trim().equals("error")){
-                                Toast.makeText(OrderManageActivity.this,"get error",Toast.LENGTH_LONG).show();
-                            }else{
-                                Toast.makeText(OrderManageActivity.this,"delete success",Toast.LENGTH_LONG).show();
-                                //onRestart();
-                                Intent intent=new Intent(OrderManageActivity.this,OrderManageActivity.class);
-                                startActivity(intent);
-                                finish();
-                            }
-                        }
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
                 }).setNegativeButton(getResources().getString(R.string.no_btn),(click1,arg1)->{
 
                 }).create().show();
@@ -511,31 +433,6 @@ public class OrderManageActivity extends AppCompatActivity {
                     String params=String.valueOf(thisRow.getId())+"/"+moneyST+"/"+paidST+"/"+dateST+" "+timeST+"/"+placeST;
                     ModifyOrderTask modifyOrderTask=new ModifyOrderTask();
                     modifyOrderTask.execute(params);
-                    String updateRes="",getResultIn="";
-                    try{
-                        updateRes=modifyOrderTask.get();
-                        Log.e("update res",updateRes);
-                        if(updateRes.trim().equals("timeout")||updateRes.trim().equals("error")){
-                            Toast.makeText(OrderManageActivity.this,updateRes,Toast.LENGTH_LONG).show();
-                        }else{
-                            GetOrderListTask getInDelete=new GetOrderListTask();
-                            getInDelete.execute("gogogo");
-                            getResultIn=getInDelete.get();
-                            if(getResultIn.trim().equals("timeout")||getResultIn.trim().equals("error")){
-                                Toast.makeText(OrderManageActivity.this,"get error",Toast.LENGTH_LONG).show();
-                            }else{
-                                Toast.makeText(OrderManageActivity.this,"delete success",Toast.LENGTH_LONG).show();
-                                //onRestart();
-                                Intent intent=new Intent(OrderManageActivity.this,OrderManageActivity.class);
-                                startActivity(intent);
-                                finish();
-                            }
-                        }
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
                 }).create().show();
             });
             rowMessage.setText(getResources().getString(R.string.order_name_detail)+thisRow.getOrdername()+"\n"+getResources().getString(R.string.order_money_detail)+thisRow.getOrderprice()+"\n"+getResources().getString(R.string.order_paid_detail)+thisRow.getOrderpaid()+"\n"+getResources().getString(R.string.order_place_detail)+thisRow.getOrderplace()+"\n"+getResources().getString(R.string.order_phone_detail)+thisRow.getOrderPhone()+"\n"+getResources().getString(R.string.order_start_detail)+thisRow.getOrderStart()+"\n"+getResources().getString(R.string.order_end_detail)+thisRow.getOrderDate());

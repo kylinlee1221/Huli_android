@@ -57,40 +57,12 @@ public class OrderMarketActivity extends AppCompatActivity {
         swipeRefreshLayout=findViewById(R.id.SW_OrderM);
         GetOrderListByIdTask getOrderListByIdTask=new GetOrderListByIdTask();
         getOrderListByIdTask.execute(String.valueOf(userid));
-        /*try {
-            if(!getOrderListByIdTask.get().equals("error")||getOrderListByIdTask.get().equals("timeout")){
-                addToInfo(getOrderListByIdTask.get());
-                if(orderList.size()!=0){
-                    adapter=new infoAdapter();
-                    infoList.setAdapter(adapter);
-                    adapter.notifyDataSetChanged();
-                }
-            }
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }*/
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 GetOrderListByIdTask getOrderListByIdTask1=new GetOrderListByIdTask();
                 getOrderListByIdTask1.execute(String.valueOf(userid));
-                try {
-                    if(!getOrderListByIdTask1.get().equals("error")||!getOrderListByIdTask1.get().equals("timeout")){
-                        addToInfo(getOrderListByIdTask1.get());
-                        if(orderList.size()!=0){
-                            adapter=new infoAdapter();
-                            infoList.setAdapter(adapter);
-                            adapter.notifyDataSetChanged();
-                        }
-                    }
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 //swipeRefreshLayout.setRefreshing(false);
             }
         });
@@ -248,6 +220,28 @@ public class OrderMarketActivity extends AppCompatActivity {
             //return null;
         }
 
+        @Override
+        protected void onPostExecute(String result){
+            super.onPostExecute("result");
+            if(result.equals("error")||result.equals("timeout")) {
+                Toast.makeText(OrderMarketActivity.this,result,Toast.LENGTH_LONG).show();
+            }else {
+                try {
+                    JSONObject jsonObject=new JSONObject(result);
+                    String status=jsonObject.getString("status");
+                    if(status.equals("1")) {
+                        Toast.makeText(OrderMarketActivity.this,"success",Toast.LENGTH_LONG).show();
+                        Intent intent=new Intent(OrderMarketActivity.this,MyOrderActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+
     }
 
     public class RefuseOrderTask extends AsyncTask<String,Void,String>{
@@ -294,6 +288,26 @@ public class OrderMarketActivity extends AppCompatActivity {
             //return null;
         }
 
+        @Override
+        protected void onPostExecute(String result){
+            super.onPostExecute(result);
+            if(result.equals("error")||result.equals("timeout")) {
+                Toast.makeText(OrderMarketActivity.this,result,Toast.LENGTH_LONG).show();
+            }else {
+                try {
+                    JSONObject jsonObject=new JSONObject(result);
+                    String status=jsonObject.getString("status");
+                    if(status.equals("1")) {
+                        Toast.makeText(OrderMarketActivity.this,"success",Toast.LENGTH_LONG).show();
+                        Intent intent=new Intent(OrderMarketActivity.this,MyOrderActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     private void addToInfo(String result){
@@ -361,31 +375,6 @@ public class OrderMarketActivity extends AppCompatActivity {
             orderBtn.setOnClickListener(click->{
                 AcceptOrderTask acceptOrderTask=new AcceptOrderTask();
                 acceptOrderTask.execute(String.valueOf(thisRow.getId()));
-                String result="";
-                try {
-                    result=acceptOrderTask.get();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                if(result.equals("error")||result.equals("timeout")) {
-                    Toast.makeText(OrderMarketActivity.this,result,Toast.LENGTH_LONG).show();
-                }else {
-                    try {
-                        JSONObject jsonObject=new JSONObject(result);
-                        String status=jsonObject.getString("status");
-                        if(status.equals("1")) {
-                            Toast.makeText(OrderMarketActivity.this,"success",Toast.LENGTH_LONG).show();
-                            Intent intent=new Intent(OrderMarketActivity.this,MyOrderActivity.class);
-                            startActivity(intent);
-                            finish();
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                }
             });
             contactBtn.setOnClickListener(click->{
                 AlertDialog.Builder builder1=new AlertDialog.Builder(OrderMarketActivity.this);
@@ -396,30 +385,6 @@ public class OrderMarketActivity extends AppCompatActivity {
                 builder1.setPositiveButton("Refuse",(click1,arg1)->{
                     RefuseOrderTask refuseOrderTask=new RefuseOrderTask();
                     refuseOrderTask.execute(String.valueOf(thisRow.getId())+"/"+refuseET.getText().toString());
-                    String result="";
-                    try {
-                        result=refuseOrderTask.get();
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    if(result.equals("error")||result.equals("timeout")) {
-                        Toast.makeText(OrderMarketActivity.this,result,Toast.LENGTH_LONG).show();
-                    }else {
-                        try {
-                            JSONObject jsonObject=new JSONObject(result);
-                            String status=jsonObject.getString("status");
-                            if(status.equals("1")) {
-                                Toast.makeText(OrderMarketActivity.this,"success",Toast.LENGTH_LONG).show();
-                                Intent intent=new Intent(OrderMarketActivity.this,MyOrderActivity.class);
-                                startActivity(intent);
-                                finish();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
                 }).create().show();
             });
             rowMessage.setText(getResources().getString(R.string.order_name_detail)+thisRow.getOrdername()+"\n"+getResources().getString(R.string.order_money_detail)+thisRow.getOrderprice()+"\n"+getResources().getString(R.string.order_paid_detail)+thisRow.getOrderpaid()+"\n"+getResources().getString(R.string.order_place_detail)+thisRow.getOrderplace()+"\n"+getResources().getString(R.string.order_start_detail)+thisRow.getOrderStart()+"\n"+getResources().getString(R.string.order_end_detail)+thisRow.getOrderDate());

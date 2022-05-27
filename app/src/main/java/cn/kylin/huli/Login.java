@@ -63,23 +63,6 @@ public class Login extends AppCompatActivity {
                     String result="";
                     GetLoginResultByPhoneTask getLoginResultByPhoneTask=new GetLoginResultByPhoneTask();
                     getLoginResultByPhoneTask.execute(userInfo);
-                    /*//AsyncTask.Status status=getLoginResultTask.getStatus();
-                    //status.toString();
-                    //Log.e("status",status.toString());
-                    //getLoginResultTask.setOnData
-                    try {
-                        result=getLoginResultByPhoneTask.get();
-                        Log.e("res in main",result);
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    if(result.trim().equals("timeout")||result.trim().equals("error")){
-                        Toast.makeText(Login.this,result,Toast.LENGTH_LONG).show();
-                    }else{
-
-                    }*/
                 }else{
                     try {
                         passwordST[0] =md5(passwordST[0]);
@@ -90,67 +73,6 @@ public class Login extends AppCompatActivity {
                     String result="";
                     GetLoginResultTask getLoginResultTask=new GetLoginResultTask();
                     getLoginResultTask.execute(userInfo);
-                    //AsyncTask.Status status=getLoginResultTask.getStatus();
-                    //status.toString();
-                    //Log.e("status",status.toString());
-                    //getLoginResultTask.setOnData
-                    /*try {
-                        result=getLoginResultTask.get();
-                        Log.e("res in main",result);
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    if(result.trim().equals("timeout")||result.trim().equals("error")){
-                        Toast.makeText(Login.this,result,Toast.LENGTH_LONG).show();
-                    }else{
-                        try {
-                            //JSONObject jsonObject=new JSONObject(buffer.toString());
-                            //jsonObject.getJSONObject(buffer.toString());
-                            JSONObject jsonObject=new JSONObject(result);
-                            Log.e("json",jsonObject.toString());
-                            //Long id=jsonObject.getLong("id")
-                            if(jsonObject.getString("status").equals("1")){
-                                String fullname=jsonObject.getString("fullname");
-                                String userid=jsonObject.getString("userid");
-                                String telephone=jsonObject.getString("telephone");
-                                String role=jsonObject.getString("role");
-                                String des=jsonObject.getString("description");
-                                Long id=jsonObject.getLong("id");
-                                userList.add(new User(id,fullname,userid,telephone,role,des));
-                                if(rememberCB.isChecked()) {
-                                    sharedPreferences.edit()
-                                            .putString("fullname", fullname)
-                                            .putString("userid", userid)
-                                            .putString("telephone", telephone)
-                                            .putString("role", role)
-                                            .putLong("id",id)
-                                            .putBoolean("checked",true).apply();
-                                    Toast.makeText(Login.this, "login success", Toast.LENGTH_LONG).show();
-                                    Intent intent = new Intent(Login.this, MainActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                }else{
-                                    sharedPreferences.edit()
-                                            .putString("fullname", fullname)
-                                            .putString("userid", userid)
-                                            .putString("telephone", telephone)
-                                            .putString("role", role)
-                                            .putLong("id",id)
-                                            .putBoolean("checked",false).apply();
-                                    Toast.makeText(Login.this, "login success", Toast.LENGTH_LONG).show();
-                                    Intent intent = new Intent(Login.this, MainActivity.class);
-                                    startActivity(intent);
-                                    finish();
-                                }
-                            }else if(jsonObject.getString("status").equals("2")){
-                                Toast.makeText(Login.this,"password error",Toast.LENGTH_LONG).show();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }*/
                 }
             }
         });
@@ -162,8 +84,7 @@ public class Login extends AppCompatActivity {
     }
     public class GetLoginResultTask extends AsyncTask<String,Void,String>{
         private String mLoginUrl="https://huli.kylin1221.com/apis/login.php?type=username&username={0}&password={1}";
-        //public JSONObject jsonObject=new JSONObject();
-        //OnData
+
         @Override
         protected String doInBackground(String... strings) {
             String[] params=strings[0].split("/");
@@ -174,16 +95,6 @@ public class Login extends AppCompatActivity {
             String url= MessageFormat.format(mLoginUrl,user,pass);
             Log.e("url",url);
             StringBuffer buffer=new StringBuffer();
-            /*HttpReqData reqData=new HttpReqData(url);
-            HttpRespData respData= HttpRequestUtil.getData(reqData);
-            if(respData.err_msg.length()<=0){
-                try{
-                    JSONObject obj=new JSONObject(respData.content);
-
-                }catch (JSONException e){
-                    Log.e("jsonException",e.toString());
-                }
-            }*/
             try{
                 URL url1=new URL(url);
                 HttpURLConnection conn=(HttpURLConnection) url1.openConnection();
