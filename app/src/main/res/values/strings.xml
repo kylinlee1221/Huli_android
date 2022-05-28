@@ -13,6 +13,7 @@
     <string name="date_chose_btn">Chose date</string>
     <string name="time_chose_btn">Chose time</string>
     <string name="add_order_btn">Add order</string>
+    <string name="now_order_btn">Now order</string>
     <string name="order_manage_btn">Order manage</string>
     <string name="contact_btn">Contact</string>
     <string name="edit_btn">edit</string>
@@ -65,4 +66,5 @@
     <string name="status_work">on work</string>
     <string name="status_refuse">refused</string>
     <string name="status_done">done</string>
+    <string name="status_outOfDate">(Out of date)</string>
 </resources>

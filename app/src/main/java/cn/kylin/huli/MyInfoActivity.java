@@ -36,7 +36,7 @@ public class MyInfoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_info);
         Button myOrderBtn=findViewById(R.id.BT_myOrder_MyInfo),addOrderBtn=findViewById(R.id.BT_addOrder_MyInfo),marketBtn=findViewById(R.id.BT_orderMarket_MyInfo);
-        Button orderManageBtn=findViewById(R.id.BT_orderManage_MyInfo),announceManageBtn=findViewById(R.id.BT_announceManage_MyInfo),logoutBtn=findViewById(R.id.BT_logout_MyInfo);
+        Button orderManageBtn=findViewById(R.id.BT_orderManage_MyInfo),nowOrderBtn=findViewById(R.id.BT_nowOrder_MyInfo),announceManageBtn=findViewById(R.id.BT_announceManage_MyInfo),logoutBtn=findViewById(R.id.BT_logout_MyInfo);
         infoTV=findViewById(R.id.TV_userInfo_MyInfo);
         SharedPreferences sp=getSharedPreferences("login",MODE_PRIVATE);
         String user_fullname=sp.getString("fullname","empty");
@@ -75,6 +75,11 @@ public class MyInfoActivity extends AppCompatActivity {
             });
             myOrderBtn.setOnClickListener(click->{
                 Intent intent=new Intent(this,MyOrderActivity.class);
+                startActivity(intent);
+                finish();
+            });
+            nowOrderBtn.setOnClickListener(click->{
+                Intent intent=new Intent(this,NowOrderActivity.class);
                 startActivity(intent);
                 finish();
             });

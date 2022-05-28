@@ -43,6 +43,12 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/BT_nowOrder_MyInfo"
+        android:text="@string/now_order_btn"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:id="@+id/BT_addOrder_MyInfo"
         android:text="@string/add_order_btn"/>
 

@@ -33,12 +33,17 @@ import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
 import cn.kylin.huli.model.Order;
 
 public class MyOrderActivity extends AppCompatActivity {
+    private int day,month,year,hour,minute,second;
     private ArrayList<Order> orderArrayList=new ArrayList<Order>();
     private ArrayList<Order> workingOrderArrayList=new ArrayList<Order>();
     private ArrayList<Order> doneOrderArrayList=new ArrayList<Order>();
@@ -46,15 +51,17 @@ public class MyOrderActivity extends AppCompatActivity {
     private infoAdapter adapter;
     private ListView orderList;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private Long userId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_order);
+        getDateTime();
         Spinner OrderFilter=findViewById(R.id.SP_orderFilter_MyOrder);
         orderList=findViewById(R.id.LV_orderList_MyOrder);
         swipeRefreshLayout=findViewById(R.id.SW_MyOrder);
         SharedPreferences sp=getSharedPreferences("login",MODE_PRIVATE);
-        Long userId=sp.getLong("id",-1);
+        userId=sp.getLong("id",-1);
         GetOrderListByIdTask getOrderListByIdTask=new GetOrderListByIdTask();
         getOrderListByIdTask.execute(String.valueOf(userId));
             //addToInfo(getOrderListByIdTask.get());
@@ -250,7 +257,7 @@ public class MyOrderActivity extends AppCompatActivity {
                         buffer.append(str);
                     }
                 }
-                addToInfo(buffer.toString());
+                //addToInfo(buffer.toString());
             }catch (Exception e){
                 e.printStackTrace();
                 return "error";
@@ -258,6 +265,35 @@ public class MyOrderActivity extends AppCompatActivity {
             Log.e("result",buffer.toString());
 
             return buffer.toString();
+        }
+
+        @Override
+        protected void onPostExecute(String result){
+            super.onPostExecute(result);
+            if(result.equals("error")||result.equals("timeout")||result.equals("[]")){
+                Toast.makeText(MyOrderActivity.this,result,Toast.LENGTH_LONG).show();
+            }else{
+                try {
+                    JSONObject jsonObject=new JSONObject(result);
+                    String status=jsonObject.getString("status");
+                    String msgs=jsonObject.getString("msgs");
+                    if(status.equals("1")){
+                        Toast.makeText(MyOrderActivity.this,msgs,Toast.LENGTH_LONG).show();
+                        GetOrderListByIdTask getOrderListByIdTask=new GetOrderListByIdTask();
+                        getOrderListByIdTask.execute(String.valueOf(userId));
+                        Intent intent=new Intent(MyOrderActivity.this,NowOrderActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }else{
+                        Toast.makeText(MyOrderActivity.this,msgs,Toast.LENGTH_LONG).show();
+                        GetOrderListByIdTask getOrderListByIdTask=new GetOrderListByIdTask();
+                        getOrderListByIdTask.execute(String.valueOf(userId));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
         }
     }
 
@@ -321,23 +357,64 @@ public class MyOrderActivity extends AppCompatActivity {
             orderStatus=rowView.findViewById(R.id.info_status_view);
             orderBtn=rowView.findViewById(R.id.info_action_button);
             contactBtn=rowView.findViewById(R.id.info_contact_button);
+            Boolean isOD=false;
+            SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            String nowDate=String.valueOf(year)+"-"+String.valueOf(month)+"-"+String.valueOf(day)+" "+String.valueOf(hour)+":"+String.valueOf(minute);
+            Date date1 = new Date(),date2 = new Date();
+            try {
+                date1=simpleDateFormat.parse(thisRow.getOrderDate());
+                date2=simpleDateFormat.parse(nowDate);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            if(date2.getTime()>date1.getTime()){
+                isOD=true;
+            }
+            Log.e("isod",String.valueOf(isOD));
             if(thisRow.getOrderStatus().equals("2")){
-                orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_accept));
-                orderStatus.setTextColor(Color.BLACK);
-                orderBtn.setText(getResources().getString(R.string.status_work));
-
+                if(isOD){
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_accept)+getResources().getString(R.string.status_outOfDate));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.status_work));
+                }else{
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_accept));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.status_work));
+                }
+                orderBtn.setOnClickListener(click->{
+                    WorkOnOrderTask workOnOrderTask=new WorkOnOrderTask();
+                    workOnOrderTask.execute(String.valueOf(thisRow.getId()));
+                });
             }else if(thisRow.getOrderStatus().equals("3")){
-                orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_work));
-                orderStatus.setTextColor(Color.BLACK);
-                orderBtn.setText(getResources().getString(R.string.status_done));
+                if(isOD){
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_work)+getResources().getString(R.string.status_outOfDate));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.status_done));
+                }else{
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_work));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.status_done));
+                }
             }else if(thisRow.getOrderStatus().equals("4")){
-                orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_refuse));
-                orderStatus.setTextColor(Color.BLACK);
-                orderBtn.setText(getResources().getString(R.string.status_accept));
+                if(isOD){
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_refuse)+getResources().getString(R.string.status_outOfDate));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.status_accept));
+                }else{
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_refuse));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.status_accept));
+                }
             }else if(thisRow.getOrderStatus().equals("5")){
-                orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_done));
-                orderStatus.setTextColor(Color.BLACK);
-                orderBtn.setText("delete");
+                if(isOD){
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_done)+getResources().getString(R.string.status_outOfDate));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText("delete");
+                }else{
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_done));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText("delete");
+                }
             }
             contactBtn.setOnClickListener(click->{
                 Intent callPhone=new Intent(Intent.ACTION_DIAL);
@@ -350,5 +427,29 @@ public class MyOrderActivity extends AppCompatActivity {
             rowMessage.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
             return rowView;
         }
+
+
+    }
+    public void getDateTime(){
+        Calendar calendar = Calendar.getInstance();//取得当前时间的年月日 时分秒
+
+
+        year = calendar.get(Calendar.YEAR);
+
+
+        month = calendar.get(Calendar.MONTH)+1;
+
+
+        day = calendar.get(Calendar.DAY_OF_MONTH);
+
+
+        hour = calendar.get(Calendar.HOUR_OF_DAY);
+
+
+        minute = calendar.get(Calendar.MINUTE);
+
+
+        second = calendar.get(Calendar.SECOND);
+
     }
 }
