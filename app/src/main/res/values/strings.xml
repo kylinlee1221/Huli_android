@@ -14,6 +14,7 @@
     <string name="time_chose_btn">Chose time</string>
     <string name="add_order_btn">Add order</string>
     <string name="now_order_btn">Now order</string>
+    <string name="on_work_btn">Check it</string>
     <string name="order_manage_btn">Order manage</string>
     <string name="contact_btn">Contact</string>
     <string name="edit_btn">edit</string>
@@ -59,6 +60,7 @@
     <string name="user_info_money">Money:</string>
     <string name="user_info_role_user">User</string>
     <string name="user_info_role_admin">admin</string>
+    <string name="user_info_get_error_hint">Get details error, click to refresh</string>
     <string name="user_logout_hint">You already logout</string>
     <string name="user_permission_hint">You are not admin</string>
     <string name="status_available">available</string>

@@ -74,7 +74,75 @@ public class NowOrderActivity extends AppCompatActivity {
                 getOrderListByIdTask1.execute(String.valueOf(userId));
                 //Log.e("TAG", "runnable just do it! time =" +  simpleDateFormat.format(System.currentTimeMillis()));
             }
-        },5,5, TimeUnit.SECONDS);
+        },300,300, TimeUnit.SECONDS);
+    }
+
+    public class MarkOrderCompleteTask extends AsyncTask<String,Void,String>{
+
+        private String mUrl="https://huli.kylin1221.com/apis/completeOrder.php?orderid={0}";
+
+        @Override
+        protected String doInBackground(String... strings) {
+            String[] params = strings[0].split("/");
+            String orderid=params[0];
+            String url = MessageFormat.format(mUrl,orderid);
+            StringBuffer buffer=new StringBuffer();
+            Log.e("url", url);
+            try{
+                URL url1=new URL(url);
+                HttpURLConnection conn=(HttpURLConnection) url1.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setReadTimeout(3000);
+                try{
+                    conn.connect();
+                }catch (SocketTimeoutException e){
+                    e.printStackTrace();
+                    return "timeout";
+                }
+                int rCode=conn.getResponseCode();
+                if(rCode==200){
+                    InputStreamReader reader=new InputStreamReader(conn.getInputStream());
+                    char[] charArr = new char[1024 * 8];
+                    int len = 0;
+                    while ((len = reader.read(charArr)) != -1) {
+                        // 字符数组转字符串
+                        String str = new String(charArr, 0, len);
+                        // 在结尾追加字符串
+                        buffer.append(str);
+                    }
+                }
+                //addToInfo(buffer.toString());
+            }catch (Exception e){
+                e.printStackTrace();
+                return "error";
+            }
+            Log.e("result",buffer.toString());
+
+            return buffer.toString();
+        }
+
+        @Override
+        protected void onPostExecute(String result){
+            if(result.equals("error")||result.equals("timeout")||result.equals("[]")){
+                Toast.makeText(NowOrderActivity.this,result,Toast.LENGTH_LONG).show();
+            }else{
+                try{
+                    JSONObject jsonObject=new JSONObject(result);
+                    String status=jsonObject.getString("status");
+                    String msgs=jsonObject.getString("msgs");
+                    if(status.equals("1")){
+                        Toast.makeText(NowOrderActivity.this,msgs,Toast.LENGTH_LONG).show();
+                        Intent intent=new Intent(NowOrderActivity.this,OrderMarketActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }else{
+                        Toast.makeText(NowOrderActivity.this,msgs,Toast.LENGTH_LONG).show();
+                    }
+                }catch (JSONException e){
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public class GetOrderListByIdTask extends AsyncTask<String,Void,String> {
@@ -151,8 +219,10 @@ public class NowOrderActivity extends AppCompatActivity {
                                 Long remainEndTime=TimeDiffByMinute(orderend),remainStartTime=TimeDiffByMinute(orderStart);
                                 if(remainEndTime<=5){
                                     MediaPlayer mediaPlayer=MediaPlayer.create(NowOrderActivity.this,R.raw.checkout_hint);
-                                    mediaPlayer.setVolume(1.0f,1.0f);
-                                    mediaPlayer.start();
+                                    if(!mediaPlayer.isPlaying()){
+                                        //mediaPlayer.setVolume(1.0f,1.0f);
+                                        mediaPlayer.start();
+                                    }
                                 }
                             }
                         }
@@ -216,14 +286,19 @@ public class NowOrderActivity extends AppCompatActivity {
             }
             Log.e("isod",String.valueOf(isOD));
             if(isOD){
-                orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_accept)+getResources().getString(R.string.status_outOfDate));
+                orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_work)+getResources().getString(R.string.status_outOfDate));
                 orderStatus.setTextColor(Color.BLACK);
                 orderBtn.setText(getResources().getString(R.string.status_done));
+                Toast.makeText(NowOrderActivity.this,"already out of date",Toast.LENGTH_LONG).show();
             }else{
-                orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_accept));
+                orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_work));
                 orderStatus.setTextColor(Color.BLACK);
                 //Log.e("enddate",thisRow.getOrderDate());
                 orderBtn.setText(getResources().getString(R.string.status_done));
+                orderBtn.setOnClickListener(click->{
+                    MarkOrderCompleteTask markOrderCompleteTask=new MarkOrderCompleteTask();
+                    markOrderCompleteTask.execute(String.valueOf(thisRow.getId()));
+                });
             }
             contactBtn.setOnClickListener(click->{
                 Intent callPhone=new Intent(Intent.ACTION_DIAL);

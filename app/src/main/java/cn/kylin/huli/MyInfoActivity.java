@@ -48,18 +48,8 @@ public class MyInfoActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }else{
-            ProgressDialog progressDialog=new ProgressDialog(MyInfoActivity.this);
-            //AlertDialog alertDialog=new AlertDialog(this);
-            progressDialog.setTitle("Loading...");
-            progressDialog.show();
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    GetUserInfoTask getUserInfoTask=new GetUserInfoTask();
-                    getUserInfoTask.execute(String.valueOf(userid));
-                    progressDialog.dismiss();
-                }
-            }).run();
+            GetUserInfoTask getUserInfoTask=new GetUserInfoTask();
+            getUserInfoTask.execute(String.valueOf(userid));
             logoutBtn.setOnClickListener(click->{
                     sp.edit()
                             .remove("fullname")
@@ -72,6 +62,10 @@ public class MyInfoActivity extends AppCompatActivity {
                     Intent intent=new Intent(this,Login.class);
                     startActivity(intent);
                     finish();
+            });
+            infoTV.setOnClickListener(click->{
+                GetUserInfoTask getUserInfoTask1=new GetUserInfoTask();
+                getUserInfoTask1.execute(String.valueOf(userid));
             });
             myOrderBtn.setOnClickListener(click->{
                 Intent intent=new Intent(this,MyOrderActivity.class);
@@ -171,8 +165,12 @@ public class MyInfoActivity extends AppCompatActivity {
         protected void onPostExecute(String string){
             //Log.e("post execute",string);
             super.onPostExecute(string);
-            if(string.trim().equals("timeout")||string.trim().equals("error")){
+            if(string.trim().equals("timeout")||string.trim().equals("error")||string.trim().equals("[]")){
                 Toast.makeText(MyInfoActivity.this,string,Toast.LENGTH_LONG).show();
+                infoTV.setText(getResources().getString(R.string.user_info_get_error_hint));
+                infoTV.setTextColor(Color.BLACK);
+                infoTV.setTextSize(16);
+                infoTV.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
             }else{
                 try {
                     JSONObject jsonObject=new JSONObject(string);

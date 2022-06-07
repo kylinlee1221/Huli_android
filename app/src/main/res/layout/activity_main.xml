@@ -55,11 +55,11 @@
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/order_market"
+            android:src="@drawable/order_now"
             android:layout_weight="1"
             android:background="@android:color/transparent"
             android:layout_gravity="center_vertical"
-            android:id="@+id/IB_orderMarket_Main"/>
+            android:id="@+id/IB_orderNow_Main"/>
 
 
         
@@ -75,6 +75,15 @@
             android:layout_height="wrap_content"
             android:id="@+id/RG_bottomButton_main"
             android:orientation="horizontal">
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:drawableTop="@drawable/order_market_small"
+                android:button="@null"
+                android:id="@+id/RB_orderMarket_Main"
+                android:layout_weight="1"/>
 
             <RadioButton
                 android:layout_width="wrap_content"

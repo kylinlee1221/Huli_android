@@ -55,6 +55,7 @@ public class OrderMarketActivity extends AppCompatActivity {
     private infoAdapter adapter;
     private ListView infoList;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private Long latestOrderId=Long.parseLong("-1");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +76,9 @@ public class OrderMarketActivity extends AppCompatActivity {
                 //swipeRefreshLayout.setRefreshing(false);
             }
         });
+        if(orderList.size()!=0){
+            latestOrderId=orderList.get(orderList.size()-1).getId();
+        }
         SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         ScheduledExecutorService executor= Executors.newScheduledThreadPool(1);
         executor.scheduleWithFixedDelay(new Runnable() {
@@ -85,7 +89,7 @@ public class OrderMarketActivity extends AppCompatActivity {
                 getOrderListByIdTask1.execute(String.valueOf(userid));
                 //Log.e("TAG", "runnable just do it! time =" +  simpleDateFormat.format(System.currentTimeMillis()));
             }
-        },10,10, TimeUnit.SECONDS);
+        },60,60, TimeUnit.SECONDS);
     }
 
     public class GetOrderListByIdTask extends AsyncTask<String,Void,String>{
@@ -165,9 +169,15 @@ public class OrderMarketActivity extends AppCompatActivity {
                         infoList.setAdapter(adapter);
                         adapter.notifyDataSetChanged();
                         //MediaPlayer mediaPlayer=new MediaPlayer(OrderMarketActivity.this,R.raw.ordercomes);
-                        MediaPlayer mediaPlayer=MediaPlayer.create(OrderMarketActivity.this,R.raw.ordercomes);
-                        mediaPlayer.setVolume(1.0f,1.0f);
-                        mediaPlayer.start();
+                        Long newOrderId=orderList.get(orderList.size()-1).getId();
+                        if(newOrderId>latestOrderId){
+                            latestOrderId=newOrderId;
+                            MediaPlayer mediaPlayer=MediaPlayer.create(OrderMarketActivity.this,R.raw.ordercomes);
+                            if(!mediaPlayer.isPlaying()){
+                                //mediaPlayer.setVolume(1.0f,1.0f);
+                                mediaPlayer.start();
+                            }
+                        }
                     }
                 }else{
                     Toast.makeText(OrderMarketActivity.this,"Connection error",Toast.LENGTH_LONG).show();
@@ -436,6 +446,7 @@ public class OrderMarketActivity extends AppCompatActivity {
         second = calendar.get(Calendar.SECOND);
 
     }
+
 
     @Override
     protected void onDestroy() {

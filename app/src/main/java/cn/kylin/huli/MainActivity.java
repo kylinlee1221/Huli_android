@@ -44,6 +44,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import cn.kylin.huli.view.BulletinView;
 import cn.kylin.huli.view.HomeAdapter;
@@ -61,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         //UMConfigure.init(this,"6263de1a30a4f67780b312f7","Umeng",UMConfigure.DEVICE_TYPE_PHONE,"");
         viewFlipper=findViewById(R.id.VF_NotifyBar2);
-        RadioButton myInfoBtn=findViewById(R.id.RB_myInfo_Main);
-        ImageButton closeAnnouncement=findViewById(R.id.IB_closeAnnouncement_Main),orderMarketBtn=findViewById(R.id.IB_orderMarket_Main),myOrderBtn=findViewById(R.id.IB_myOrder_Main);
+        RadioButton myInfoBtn=findViewById(R.id.RB_myInfo_Main),orderMarketBtn=findViewById(R.id.RB_orderMarket_Main);
+        ImageButton closeAnnouncement=findViewById(R.id.IB_closeAnnouncement_Main),nowOrderBtn=findViewById(R.id.IB_orderNow_Main),myOrderBtn=findViewById(R.id.IB_myOrder_Main);
         LinearLayout announceLayout=findViewById(R.id.LL_Announce_Main);
         closeAnnouncement.setOnClickListener(click->{
             announceLayout.setVisibility(View.GONE);
@@ -93,7 +96,18 @@ public class MainActivity extends AppCompatActivity {
                 viewFlipper.startFlipping();//开始滚动，如果只有一个子view，则只有进入动画不会有退出动画
             }
         }
+        //ScheduledExecutorService scheduledExecutorService=
 
+        ScheduledExecutorService executor= Executors.newScheduledThreadPool(1);
+        executor.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                //SystemClock.sleep(10000L);
+                GetAnnouncementTask getAnnouncementTask1=new GetAnnouncementTask();
+                getAnnouncementTask1.execute("gogogo");
+                //Log.e("TAG", "runnable just do it! time =" +  simpleDateFormat.format(System.currentTimeMillis()));
+            }
+        },100000,100000, TimeUnit.SECONDS);
         SharedPreferences sp=getSharedPreferences("login",MODE_PRIVATE);
         String user_fullname=sp.getString("fullname","empty");
         Long userid=sp.getLong("id",-1);
@@ -103,21 +117,39 @@ public class MainActivity extends AppCompatActivity {
         }
         orderMarketBtn.setOnClickListener(click->{
             String user_fullname1=sp.getString("fullname","empty").trim();
+            String user_role=sp.getString("role","empty").trim();
             Log.e("full in out",user_fullname1);
             if(user_fullname1.equals("empty")){
                 Toast.makeText(this,"You Should log in first",Toast.LENGTH_LONG).show();
             }else{
-                Intent intent=new Intent(this,OrderMarketActivity.class);
-                startActivity(intent);
+                if(user_role.equals("1")){
+                    Intent intent=new Intent(this,OrderManageActivity.class);
+                    startActivity(intent);
+                }else{
+                    Intent intent=new Intent(this,OrderMarketActivity.class);
+                    startActivity(intent);
+                }
+
             }
         });
         myOrderBtn.setOnClickListener(click->{
             String user_fullname1=sp.getString("fullname","empty").trim();
+            String user_role=sp.getString("role","empty").trim();
             Log.e("full in out",user_fullname1);
             if(user_fullname1.equals("empty")){
                 Toast.makeText(this,"You Should log in first",Toast.LENGTH_LONG).show();
             }else{
                 Intent intent=new Intent(this,MyOrderActivity.class);
+                startActivity(intent);
+            }
+        });
+        nowOrderBtn.setOnClickListener(click->{
+            String user_fullname1=sp.getString("fullname","empty").trim();
+            Log.e("full in out",user_fullname1);
+            if(user_fullname1.equals("empty")){
+                Toast.makeText(this,"You Should log in first",Toast.LENGTH_LONG).show();
+            }else{
+                Intent intent=new Intent(this,NowOrderActivity.class);
                 startActivity(intent);
             }
         });
@@ -170,6 +202,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result){
             super.onPostExecute(result);
+            infoList.clear();
             try {
                 //JSONObject jsonObject=new JSONObject(result);
                 JSONArray jsonArray=new JSONArray(result);

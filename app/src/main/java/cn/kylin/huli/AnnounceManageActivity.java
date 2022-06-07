@@ -75,25 +75,9 @@ public class AnnounceManageActivity extends AppCompatActivity {
             builder.setTitle("Modify or delete");
             builder.setView(tmpView);
             builder.setPositiveButton("Modify",(click,arg)->{
-                View updateView=View.inflate(AnnounceManageActivity.this,R.layout.edit_announce_view,null);
-                EditText updateInfo=updateView.findViewById(R.id.ET_AnInfo_Edit);
-                AlertDialog.Builder updateBuilder=new AlertDialog.Builder(AnnounceManageActivity.this);
-                updateInfo.setText(tmpA.getInfo());
-                updateBuilder.setView(updateView);
-                updateBuilder.setPositiveButton("update",(click1,arg1)->{
-                    String newInfo=updateInfo.getText().toString();
-                    String params="update/"+String.valueOf(tmpA.getId())+"/"+newInfo;
-                    UpdateAnnounceTask updateAnnounceTask=new UpdateAnnounceTask();
-                    updateAnnounceTask.execute(params);
-                    GetAnnouncementTask getInDelete=new GetAnnouncementTask();
-                    getInDelete.execute("gogogo");
-                }).create().show();
+
             }).setNegativeButton("Delete",(click,arg)->{
-                DeleteAnnouncementTask deleteAnnouncementTask=new DeleteAnnouncementTask();
-                String params="delete/"+String.valueOf(tmpA.getId());
-                deleteAnnouncementTask.execute(params);
-                GetAnnouncementTask getInDelete=new GetAnnouncementTask();
-                getInDelete.execute("gogogo");
+
             }).create().show();
             return true;
         });
@@ -145,7 +129,7 @@ public class AnnounceManageActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result){
             super.onPostExecute(result);
-            if(result.equals("timeout")||result.equals("error")){
+            if(result.equals("timeout")||result.equals("error")||result.equals("[]")){
                 Toast.makeText(AnnounceManageActivity.this,result,Toast.LENGTH_LONG).show();
             }else{
                 announcementList.clear();
@@ -238,27 +222,22 @@ public class AnnounceManageActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result){
             super.onPostExecute(result);
-            if(result.trim().equals("timeout")||result.trim().equals("error")){
+            if(result.trim().equals("timeout")||result.trim().equals("error")||result.trim().equals("[]")){
                 Toast.makeText(AnnounceManageActivity.this,result,Toast.LENGTH_LONG).show();
             }else{
-                announcementList.clear();
                 try{
-                    JSONArray jsonArray=new JSONArray(result);
-                    for(int i=0;i<jsonArray.length();i++){
-                        JSONObject jsonObject=jsonArray.getJSONObject(i);
-                        Long id=jsonObject.getLong("id");
-                        Long sendby=jsonObject.getLong("sendby");
-                        String info=jsonObject.getString("info");
-                        String endtime=jsonObject.getString("endtime");
-                        announcementList.add(new Announcement(id,sendby,info,endtime));
+                    JSONObject jsonObject=new JSONObject(result);
+                    String status=jsonObject.getString("status");
+                    String msgs=jsonObject.getString("msgs");
+                    if(status.equals("1")){
+                        Toast.makeText(AnnounceManageActivity.this,msgs,Toast.LENGTH_LONG).show();
+                        GetAnnouncementTask getAnnouncementTask=new GetAnnouncementTask();
+                        getAnnouncementTask.execute("gogogo");
+                    }else{
+                        Toast.makeText(AnnounceManageActivity.this,msgs,Toast.LENGTH_LONG).show();
                     }
-                } catch (JSONException e) {
+                }catch (JSONException e){
                     e.printStackTrace();
-                }
-                if(announcementList.size()!=0){
-                    adapter=new infoAdapter();
-                    anList.setAdapter(adapter);
-                    adapter.notifyDataSetChanged();
                 }
             }
         }
@@ -310,27 +289,22 @@ public class AnnounceManageActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result){
             super.onPostExecute(result);
-            if(result.trim().equals("timeout")||result.trim().equals("error")){
+            if(result.trim().equals("timeout")||result.trim().equals("error")||result.trim().equals("[]")){
                 Toast.makeText(AnnounceManageActivity.this,result,Toast.LENGTH_LONG).show();
             }else{
-                announcementList.clear();
                 try{
-                    JSONArray jsonArray=new JSONArray(result);
-                    for(int i=0;i<jsonArray.length();i++){
-                        JSONObject jsonObject=jsonArray.getJSONObject(i);
-                        Long id=jsonObject.getLong("id");
-                        Long sendby=jsonObject.getLong("sendby");
-                        String info=jsonObject.getString("info");
-                        String endtime=jsonObject.getString("endtime");
-                        announcementList.add(new Announcement(id,sendby,info,endtime));
+                    JSONObject jsonObject=new JSONObject(result);
+                    String status=jsonObject.getString("status");
+                    String msgs=jsonObject.getString("msgs");
+                    if(status.equals("1")){
+                        Toast.makeText(AnnounceManageActivity.this,msgs,Toast.LENGTH_LONG).show();
+                        GetAnnouncementTask getAnnouncementTask=new GetAnnouncementTask();
+                        getAnnouncementTask.execute("gogogo");
+                    }else{
+                        Toast.makeText(AnnounceManageActivity.this,msgs,Toast.LENGTH_LONG).show();
                     }
-                } catch (JSONException e) {
+                }catch (JSONException e){
                     e.printStackTrace();
-                }
-                if(announcementList.size()!=0){
-                    adapter=new infoAdapter();
-                    anList.setAdapter(adapter);
-                    adapter.notifyDataSetChanged();
                 }
             }
         }
@@ -381,11 +355,43 @@ public class AnnounceManageActivity extends AppCompatActivity {
         public View getView(int i, View view, ViewGroup viewGroup) {
             LayoutInflater inflater=getLayoutInflater();
             View rowView;
-            TextView rowMessage;
+            TextView rowMessage,endTime;
+            Button deleteBtn,editBtn;
             Announcement thisRow=getItem(i);
             rowView=inflater.inflate(R.layout.show_announce_view,viewGroup,false);
             rowMessage=rowView.findViewById(R.id.info_text_view2);
-            rowMessage.setText(getResources().getString(R.string.announce_info_detail)+thisRow.getInfo()+"\n"+getResources().getString(R.string.order_end_detail)+thisRow.getEndtime()+"\n");
+            endTime=rowView.findViewById(R.id.info_status_view2);
+            deleteBtn=rowView.findViewById(R.id.info_delete_button);
+            editBtn=rowView.findViewById(R.id.info_edit_button);
+            rowMessage.setText(getResources().getString(R.string.announce_info_detail)+thisRow.getInfo());
+            endTime.setText(getResources().getString(R.string.order_end_detail)+thisRow.getEndtime());
+            deleteBtn.setOnClickListener(click->{
+                AlertDialog.Builder deleteAlert=new AlertDialog.Builder(AnnounceManageActivity.this);
+                deleteAlert.setTitle(getResources().getString(R.string.delete_confirm_hint));
+                deleteAlert.setPositiveButton(getResources().getString(R.string.yes_btn),(click1,arg1)->{
+                    DeleteAnnouncementTask deleteAnnouncementTask=new DeleteAnnouncementTask();
+                    String params="delete/"+String.valueOf(thisRow.getId());
+                    deleteAnnouncementTask.execute(params);
+                    GetAnnouncementTask getInDelete=new GetAnnouncementTask();
+                    getInDelete.execute("gogogo");
+                }).setNegativeButton(getResources().getString(R.string.no_btn),(click1,arg1)->{
+
+                }).create().show();
+
+            });
+            editBtn.setOnClickListener(click->{
+                View updateView=View.inflate(AnnounceManageActivity.this,R.layout.edit_announce_view,null);
+                EditText updateInfo=updateView.findViewById(R.id.ET_AnInfo_Edit);
+                AlertDialog.Builder updateBuilder=new AlertDialog.Builder(AnnounceManageActivity.this);
+                updateInfo.setText(thisRow.getInfo());
+                updateBuilder.setView(updateView);
+                updateBuilder.setPositiveButton("update",(click1,arg1)->{
+                    String newInfo=updateInfo.getText().toString();
+                    String params="update/"+String.valueOf(thisRow.getId())+"/"+newInfo;
+                    UpdateAnnounceTask updateAnnounceTask=new UpdateAnnounceTask();
+                    updateAnnounceTask.execute(params);
+                }).create().show();
+            });
             rowMessage.setTextColor(Color.BLACK);
             rowMessage.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
             return rowView;

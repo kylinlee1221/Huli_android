@@ -3,9 +3,15 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/workplace/studioProject/Huli_android/app/src/main/res/layout/activity_create_annoucement.xml" value="0.29270833333333335" />
+        <entry key="..\:/workplace/studioProject/Huli_android/app/src/main/res/layout/activity_main.xml" value="0.18614130434782608" />
         <entry key="..\:/workplace/studioProject/Huli_android/app/src/main/res/layout/activity_my_info.xml" value="0.18614130434782608" />
         <entry key="..\:/workplace/studioProject/Huli_android/app/src/main/res/layout/activity_my_order.xml" value="0.3619791666666667" />
         <entry key="..\:/workplace/studioProject/Huli_android/app/src/main/res/layout/activity_now_order.xml" value="0.3619791666666667" />
+        <entry key="..\:/workplace/studioProject/Huli_android/app/src/main/res/layout/edit_announce_view.xml" value="0.29270833333333335" />
+        <entry key="..\:/workplace/studioProject/Huli_android/app/src/main/res/layout/show__order_details_view.xml" value="0.29270833333333335" />
+        <entry key="..\:/workplace/studioProject/Huli_android/app/src/main/res/layout/show_announce_details_view.xml" value="0.29270833333333335" />
+        <entry key="..\:/workplace/studioProject/Huli_android/app/src/main/res/layout/show_announce_view.xml" value="0.29270833333333335" />
         <entry key="..\:/workplace/studioProject/Huli_android/app/src/main/res/layout/show_list_resource.xml" value="0.3619791666666667" />
         <entry key="..\:/workplace/studioProject/Huli_android/app/src/main/res/layout/show_my_order_details_view.xml" value="0.3619791666666667" />
         <entry key="..\:/workplace/studioProject/Huli_android/app/src/main/res/layout/show_now_order_view.xml" value="0.34739583333333335" />

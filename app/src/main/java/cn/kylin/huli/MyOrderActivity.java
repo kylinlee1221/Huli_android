@@ -9,6 +9,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -32,6 +33,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -52,6 +54,7 @@ public class MyOrderActivity extends AppCompatActivity {
     private ListView orderList;
     private SwipeRefreshLayout swipeRefreshLayout;
     private Long userId;
+    private Boolean isAlreadyOnWork=false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -126,7 +129,7 @@ public class MyOrderActivity extends AppCompatActivity {
                         buffer.append(str);
                     }
                 }
-                addToInfo(buffer.toString());
+                //addToInfo(buffer.toString());
             }catch (Exception e){
                 e.printStackTrace();
                 return "error";
@@ -140,7 +143,7 @@ public class MyOrderActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result){
             super.onPostExecute(result);
-            if(result.equals("timeout")||result.equals("error")){
+            if(result.equals("timeout")||result.equals("error")||result.equals("[]")){
                 Toast.makeText(MyOrderActivity.this,result,Toast.LENGTH_LONG).show();
             }else{
                 orderArrayList.clear();
@@ -164,6 +167,16 @@ public class MyOrderActivity extends AppCompatActivity {
                                 Order tmpOrder = new Order(id, ordername, orderplace, orderend, orderStart, orderprice, orderpaid, orderStatus,cusPhone);
                                 orderArrayList.add(tmpOrder);
                             }
+                            if(status==2){
+                                Long remainStartTime=TimeDiffByMinute(orderStart);
+                                if(remainStartTime<=5){
+                                    MediaPlayer mediaPlayer=MediaPlayer.create(MyOrderActivity.this,R.raw.checkin_hint);
+                                    if(!mediaPlayer.isPlaying()){
+                                        //mediaPlayer.setVolume(1.0f,1.0f);
+                                        mediaPlayer.start();
+                                    }
+                                }
+                            }
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -174,54 +187,18 @@ public class MyOrderActivity extends AppCompatActivity {
                     adapter = new infoAdapter();
                     orderList.setAdapter(adapter);
                     adapter.notifyDataSetChanged();
+                    checkOnWorkStatus(orderArrayList);
                 }
             }
             swipeRefreshLayout.setRefreshing(false);
         }
     }
 
-    public class MarkOrderCompleteTask extends AsyncTask<String,Void,String>{
-
-        private String mUrl="https://huli.kylin1221.com/apis/completeOrder.php?orderid={0}";
-
-        @Override
-        protected String doInBackground(String... strings) {
-            String[] params = strings[0].split("/");
-            String orderid=params[0];
-            String url = MessageFormat.format(mUrl,orderid);
-            StringBuffer buffer=new StringBuffer();
-            Log.e("url", url);
-            try{
-                URL url1=new URL(url);
-                HttpURLConnection conn=(HttpURLConnection) url1.openConnection();
-                conn.setRequestMethod("GET");
-                conn.setReadTimeout(3000);
-                try{
-                    conn.connect();
-                }catch (SocketTimeoutException e){
-                    e.printStackTrace();
-                    return "timeout";
-                }
-                int rCode=conn.getResponseCode();
-                if(rCode==200){
-                    InputStreamReader reader=new InputStreamReader(conn.getInputStream());
-                    char[] charArr = new char[1024 * 8];
-                    int len = 0;
-                    while ((len = reader.read(charArr)) != -1) {
-                        // 字符数组转字符串
-                        String str = new String(charArr, 0, len);
-                        // 在结尾追加字符串
-                        buffer.append(str);
-                    }
-                }
-                addToInfo(buffer.toString());
-            }catch (Exception e){
-                e.printStackTrace();
-                return "error";
+    public void checkOnWorkStatus(ArrayList<Order> tempArrayList){
+        for(Order order:tempArrayList){
+            if(order.getOrderStatus().equals("3")){
+                isAlreadyOnWork=true;
             }
-            Log.e("result",buffer.toString());
-
-            return buffer.toString();
         }
     }
 
@@ -381,20 +358,32 @@ public class MyOrderActivity extends AppCompatActivity {
                     orderStatus.setTextColor(Color.BLACK);
                     orderBtn.setText(getResources().getString(R.string.status_work));
                 }
-                orderBtn.setOnClickListener(click->{
-                    WorkOnOrderTask workOnOrderTask=new WorkOnOrderTask();
-                    workOnOrderTask.execute(String.valueOf(thisRow.getId()));
-                });
+                if(!isAlreadyOnWork){
+                    orderBtn.setOnClickListener(click->{
+                        WorkOnOrderTask workOnOrderTask=new WorkOnOrderTask();
+                        workOnOrderTask.execute(String.valueOf(thisRow.getId()));
+                    });
+                }else{
+                    orderBtn.setOnClickListener(click->{
+                        Toast.makeText(MyOrderActivity.this,"you already have an on work order",Toast.LENGTH_LONG).show();
+                    });
+                }
+
             }else if(thisRow.getOrderStatus().equals("3")){
                 if(isOD){
                     orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_work)+getResources().getString(R.string.status_outOfDate));
                     orderStatus.setTextColor(Color.BLACK);
-                    orderBtn.setText(getResources().getString(R.string.status_done));
+                    orderBtn.setText(getResources().getString(R.string.on_work_btn));
                 }else{
                     orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_work));
                     orderStatus.setTextColor(Color.BLACK);
-                    orderBtn.setText(getResources().getString(R.string.status_done));
+                    orderBtn.setText(getResources().getString(R.string.on_work_btn));
                 }
+                orderBtn.setOnClickListener(click->{
+                    Intent intent=new Intent(MyOrderActivity.this,NowOrderActivity.class);
+                    startActivity(intent);
+                    finish();
+                });
             }else if(thisRow.getOrderStatus().equals("4")){
                 if(isOD){
                     orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_refuse)+getResources().getString(R.string.status_outOfDate));
@@ -406,15 +395,9 @@ public class MyOrderActivity extends AppCompatActivity {
                     orderBtn.setText(getResources().getString(R.string.status_accept));
                 }
             }else if(thisRow.getOrderStatus().equals("5")){
-                if(isOD){
-                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_done)+getResources().getString(R.string.status_outOfDate));
-                    orderStatus.setTextColor(Color.BLACK);
-                    orderBtn.setText("delete");
-                }else{
                     orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_done));
                     orderStatus.setTextColor(Color.BLACK);
                     orderBtn.setText("delete");
-                }
             }
             contactBtn.setOnClickListener(click->{
                 Intent callPhone=new Intent(Intent.ACTION_DIAL);
@@ -451,5 +434,37 @@ public class MyOrderActivity extends AppCompatActivity {
 
         second = calendar.get(Calendar.SECOND);
 
+    }
+
+    private Long TimeDiffByMinute(String endTime){
+        //获取结束的时间戳
+        //long expirationTime = data.getExpirationTime();
+        //获得当前时间戳
+        Long min = Long.parseLong("0");
+        long timeStamp = System.currentTimeMillis();
+        //格式
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        //转换为String类型
+        //String endDate = formatter.format(endTime);//结束的时间戳
+        String startDate = formatter.format(timeStamp);//开始的时间戳
+        // 获取服务器返回的时间戳 转换成"yyyy-MM-dd HH:mm:ss"
+        // 计算的时间差
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            Date d1 = df.parse(endTime);//后的时间
+            Date d2 = df.parse(startDate); //前的时间
+            Long diff = d1.getTime() - d2.getTime(); //两时间差，精确到毫秒
+            Long day = diff / (1000 * 60 * 60 * 24); //以天数为单位取整
+            Long hour=(diff/(60*60*1000)-day*24); //以小时为单位取整
+            min=((diff/(60*1000))-day*24*60-hour*60); //以分钟为单位取整
+            Long second=(diff/1000-day*24*60*60-hour*60*60-min*60);//秒
+            //Log.e("tag","day =" +day);
+            //Log.e("tag","hour =" +hour);
+            //Log.e("tag","min =" +min);
+            //Log.e("tag","second =" +second);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return min;
     }
 }
