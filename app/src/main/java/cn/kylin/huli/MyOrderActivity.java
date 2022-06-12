@@ -74,13 +74,41 @@ public class MyOrderActivity extends AppCompatActivity {
             orderList.setAdapter(adapter);
             adapter.notifyDataSetChanged();
         }
-
-
-
         OrderFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-
+                Log.e("select pos",String.valueOf(i));
+                switch (i){
+                    case 0:
+                        if (orderArrayList.size() != 0) {
+                            adapter = new infoAdapter();
+                            orderList.setAdapter(adapter);
+                            adapter.notifyDataSetChanged();
+                        }
+                        break;
+                    case 1:
+                        WorkingInfoAdapter WorkingAdapter=new WorkingInfoAdapter();
+                        orderList.setAdapter(WorkingAdapter);
+                        WorkingAdapter.notifyDataSetChanged();
+                        break;
+                    case 2:
+                        DoneInfoAdapter doneInfoAdapter=new DoneInfoAdapter();
+                        orderList.setAdapter(doneInfoAdapter);
+                        doneInfoAdapter.notifyDataSetChanged();
+                        break;
+                    case 3:
+                        OutODInfoAdapter outODInfoAdapter=new OutODInfoAdapter();
+                        orderList.setAdapter(outODInfoAdapter);
+                        outODInfoAdapter.notifyDataSetChanged();
+                        break;
+                    default:
+                        if (orderArrayList.size() != 0) {
+                            adapter = new infoAdapter();
+                            orderList.setAdapter(adapter);
+                            adapter.notifyDataSetChanged();
+                        }
+                        break;
+                }
             }
 
             @Override
@@ -93,6 +121,7 @@ public class MyOrderActivity extends AppCompatActivity {
             public void onRefresh() {
                 GetOrderListByIdTask getOrderListByIdTask1=new GetOrderListByIdTask();
                 getOrderListByIdTask1.execute(String.valueOf(userId));
+                OrderFilter.setSelection(0);
             }
         });
     }
@@ -150,6 +179,9 @@ public class MyOrderActivity extends AppCompatActivity {
                 Toast.makeText(MyOrderActivity.this,result,Toast.LENGTH_LONG).show();
             }else{
                 orderArrayList.clear();
+                workingOrderArrayList.clear();
+                outODOrderArrayList.clear();
+                doneOrderArrayList.clear();
                 if(!result.equals("error")){
                     JSONArray jsonArray = null;
                     try {
@@ -187,6 +219,7 @@ public class MyOrderActivity extends AppCompatActivity {
 
                 }
                 if (orderArrayList.size() != 0) {
+                    spiltArrayList(orderArrayList);
                     adapter = new infoAdapter();
                     orderList.setAdapter(adapter);
                     adapter.notifyDataSetChanged();
@@ -194,6 +227,30 @@ public class MyOrderActivity extends AppCompatActivity {
                 }
             }
             swipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
+    public void spiltArrayList(ArrayList<Order> tempArrayList){
+        SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        String nowDate=String.valueOf(year)+"-"+String.valueOf(month)+"-"+String.valueOf(day)+" "+String.valueOf(hour)+":"+String.valueOf(minute);
+
+        for(Order order:tempArrayList){
+            if(order.getOrderStatus().equals("3")){
+                workingOrderArrayList.add(order);
+            }
+            if(order.getOrderStatus().equals("5")){
+                doneOrderArrayList.add(order);
+            }
+            Date date1 = new Date(),date2 = new Date();
+            try {
+                date1=simpleDateFormat.parse(order.getOrderDate());
+                date2=simpleDateFormat.parse(nowDate);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            if(checkOD(date1,date2)){
+                outODOrderArrayList.add(order);
+            }
         }
     }
 
@@ -307,6 +364,17 @@ public class MyOrderActivity extends AppCompatActivity {
         }
     }
 
+    private boolean checkOD(Date date1,Date date2){
+        Boolean isOD=false;
+        SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        String nowDate=String.valueOf(year)+"-"+String.valueOf(month)+"-"+String.valueOf(day)+" "+String.valueOf(hour)+":"+String.valueOf(minute);
+        //Date date1 = new Date(),date2 = new Date();
+        if(date2.getTime()>date1.getTime()){
+            isOD=true;
+        }
+        return isOD;
+    }
+
     protected class infoAdapter extends BaseAdapter {
 
         @Override
@@ -347,9 +415,7 @@ public class MyOrderActivity extends AppCompatActivity {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            if(date2.getTime()>date1.getTime()){
-                isOD=true;
-            }
+            isOD=checkOD(date1,date2);
             Log.e("isod",String.valueOf(isOD));
             if(thisRow.getOrderStatus().equals("2")){
                 if(isOD){
@@ -401,6 +467,328 @@ public class MyOrderActivity extends AppCompatActivity {
                     orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_done));
                     orderStatus.setTextColor(Color.BLACK);
                     orderBtn.setText("delete");
+            }
+            contactBtn.setOnClickListener(click->{
+                Intent callPhone=new Intent(Intent.ACTION_DIAL);
+                Uri phoneNum=Uri.parse("tel:"+thisRow.getOrderPhone());
+                callPhone.setData(phoneNum);
+                startActivity(callPhone);
+            });
+            rowMessage.setText(getResources().getString(R.string.order_name_detail)+thisRow.getOrdername()+"\n"+getResources().getString(R.string.order_money_detail)+thisRow.getOrderprice()+"\n"+getResources().getString(R.string.order_paid_detail)+thisRow.getOrderpaid()+"\n"+getResources().getString(R.string.order_place_detail)+thisRow.getOrderplace()+"\n"+getResources().getString(R.string.order_phone_detail)+thisRow.getOrderPhone()+"\n"+getResources().getString(R.string.order_start_detail)+thisRow.getOrderStart()+"\n"+getResources().getString(R.string.order_end_detail)+thisRow.getOrderDate());
+            rowMessage.setTextColor(Color.BLACK);
+            rowMessage.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
+            return rowView;
+        }
+    }
+
+    protected class DoneInfoAdapter extends BaseAdapter {
+
+        @Override
+        public int getCount() {
+            return doneOrderArrayList.size();
+        }
+
+        @Override
+        public Order getItem(int i) {
+            return doneOrderArrayList.get(i);
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return i;
+        }
+
+        @SuppressLint("SetTextI18n")
+        @Override
+        public View getView(int i, View view, ViewGroup viewGroup) {
+            LayoutInflater inflater=getLayoutInflater();
+            View rowView;
+            TextView rowMessage,orderStatus;
+            Button orderBtn,contactBtn;
+            Order thisRow=getItem(i);
+            rowView=inflater.inflate(R.layout.show_list_resource,viewGroup,false);
+            rowMessage=rowView.findViewById(R.id.info_text_view);
+            orderStatus=rowView.findViewById(R.id.info_status_view);
+            orderBtn=rowView.findViewById(R.id.info_action_button);
+            contactBtn=rowView.findViewById(R.id.info_contact_button);
+            Boolean isOD=false;
+            SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            String nowDate=String.valueOf(year)+"-"+String.valueOf(month)+"-"+String.valueOf(day)+" "+String.valueOf(hour)+":"+String.valueOf(minute);
+            Date date1 = new Date(),date2 = new Date();
+            try {
+                date1=simpleDateFormat.parse(thisRow.getOrderDate());
+                date2=simpleDateFormat.parse(nowDate);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            isOD=checkOD(date1,date2);
+            Log.e("isod",String.valueOf(isOD));
+            if(thisRow.getOrderStatus().equals("2")){
+                if(isOD){
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_accept)+getResources().getString(R.string.status_outOfDate));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.status_work));
+                }else{
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_accept));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.status_work));
+                }
+                if(!isAlreadyOnWork){
+                    orderBtn.setOnClickListener(click->{
+                        WorkOnOrderTask workOnOrderTask=new WorkOnOrderTask();
+                        workOnOrderTask.execute(String.valueOf(thisRow.getId()));
+                    });
+                }else{
+                    orderBtn.setOnClickListener(click->{
+                        Toast.makeText(MyOrderActivity.this,"you already have an on work order",Toast.LENGTH_LONG).show();
+                    });
+                }
+
+            }else if(thisRow.getOrderStatus().equals("3")){
+                if(isOD){
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_work)+getResources().getString(R.string.status_outOfDate));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.on_work_btn));
+                }else{
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_work));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.on_work_btn));
+                }
+                orderBtn.setOnClickListener(click->{
+                    Intent intent=new Intent(MyOrderActivity.this,NowOrderActivity.class);
+                    startActivity(intent);
+                    finish();
+                });
+            }else if(thisRow.getOrderStatus().equals("4")){
+                if(isOD){
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_refuse)+getResources().getString(R.string.status_outOfDate));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.status_accept));
+                }else{
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_refuse));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.status_accept));
+                }
+            }else if(thisRow.getOrderStatus().equals("5")){
+                orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_done));
+                orderStatus.setTextColor(Color.BLACK);
+                orderBtn.setText("delete");
+            }
+            contactBtn.setOnClickListener(click->{
+                Intent callPhone=new Intent(Intent.ACTION_DIAL);
+                Uri phoneNum=Uri.parse("tel:"+thisRow.getOrderPhone());
+                callPhone.setData(phoneNum);
+                startActivity(callPhone);
+            });
+            rowMessage.setText(getResources().getString(R.string.order_name_detail)+thisRow.getOrdername()+"\n"+getResources().getString(R.string.order_money_detail)+thisRow.getOrderprice()+"\n"+getResources().getString(R.string.order_paid_detail)+thisRow.getOrderpaid()+"\n"+getResources().getString(R.string.order_place_detail)+thisRow.getOrderplace()+"\n"+getResources().getString(R.string.order_phone_detail)+thisRow.getOrderPhone()+"\n"+getResources().getString(R.string.order_start_detail)+thisRow.getOrderStart()+"\n"+getResources().getString(R.string.order_end_detail)+thisRow.getOrderDate());
+            rowMessage.setTextColor(Color.BLACK);
+            rowMessage.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
+            return rowView;
+        }
+
+
+    }
+
+    protected class WorkingInfoAdapter extends BaseAdapter {
+
+        @Override
+        public int getCount() {
+            return workingOrderArrayList.size();
+        }
+
+        @Override
+        public Order getItem(int i) {
+            return workingOrderArrayList.get(i);
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return i;
+        }
+
+        @SuppressLint("SetTextI18n")
+        @Override
+        public View getView(int i, View view, ViewGroup viewGroup) {
+            LayoutInflater inflater=getLayoutInflater();
+            View rowView;
+            TextView rowMessage,orderStatus;
+            Button orderBtn,contactBtn;
+            Order thisRow=getItem(i);
+            rowView=inflater.inflate(R.layout.show_list_resource,viewGroup,false);
+            rowMessage=rowView.findViewById(R.id.info_text_view);
+            orderStatus=rowView.findViewById(R.id.info_status_view);
+            orderBtn=rowView.findViewById(R.id.info_action_button);
+            contactBtn=rowView.findViewById(R.id.info_contact_button);
+            Boolean isOD=false;
+            SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            String nowDate=String.valueOf(year)+"-"+String.valueOf(month)+"-"+String.valueOf(day)+" "+String.valueOf(hour)+":"+String.valueOf(minute);
+            Date date1 = new Date(),date2 = new Date();
+            try {
+                date1=simpleDateFormat.parse(thisRow.getOrderDate());
+                date2=simpleDateFormat.parse(nowDate);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            isOD=checkOD(date1,date2);
+            Log.e("isod",String.valueOf(isOD));
+            if(thisRow.getOrderStatus().equals("2")){
+                if(isOD){
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_accept)+getResources().getString(R.string.status_outOfDate));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.status_work));
+                }else{
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_accept));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.status_work));
+                }
+                if(!isAlreadyOnWork){
+                    orderBtn.setOnClickListener(click->{
+                        WorkOnOrderTask workOnOrderTask=new WorkOnOrderTask();
+                        workOnOrderTask.execute(String.valueOf(thisRow.getId()));
+                    });
+                }else{
+                    orderBtn.setOnClickListener(click->{
+                        Toast.makeText(MyOrderActivity.this,"you already have an on work order",Toast.LENGTH_LONG).show();
+                    });
+                }
+
+            }else if(thisRow.getOrderStatus().equals("3")){
+                if(isOD){
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_work)+getResources().getString(R.string.status_outOfDate));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.on_work_btn));
+                }else{
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_work));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.on_work_btn));
+                }
+                orderBtn.setOnClickListener(click->{
+                    Intent intent=new Intent(MyOrderActivity.this,NowOrderActivity.class);
+                    startActivity(intent);
+                    finish();
+                });
+            }else if(thisRow.getOrderStatus().equals("4")){
+                if(isOD){
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_refuse)+getResources().getString(R.string.status_outOfDate));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.status_accept));
+                }else{
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_refuse));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.status_accept));
+                }
+            }else if(thisRow.getOrderStatus().equals("5")){
+                orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_done));
+                orderStatus.setTextColor(Color.BLACK);
+                orderBtn.setText("delete");
+            }
+            contactBtn.setOnClickListener(click->{
+                Intent callPhone=new Intent(Intent.ACTION_DIAL);
+                Uri phoneNum=Uri.parse("tel:"+thisRow.getOrderPhone());
+                callPhone.setData(phoneNum);
+                startActivity(callPhone);
+            });
+            rowMessage.setText(getResources().getString(R.string.order_name_detail)+thisRow.getOrdername()+"\n"+getResources().getString(R.string.order_money_detail)+thisRow.getOrderprice()+"\n"+getResources().getString(R.string.order_paid_detail)+thisRow.getOrderpaid()+"\n"+getResources().getString(R.string.order_place_detail)+thisRow.getOrderplace()+"\n"+getResources().getString(R.string.order_phone_detail)+thisRow.getOrderPhone()+"\n"+getResources().getString(R.string.order_start_detail)+thisRow.getOrderStart()+"\n"+getResources().getString(R.string.order_end_detail)+thisRow.getOrderDate());
+            rowMessage.setTextColor(Color.BLACK);
+            rowMessage.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
+            return rowView;
+        }
+
+
+    }
+
+    protected class OutODInfoAdapter extends BaseAdapter {
+
+        @Override
+        public int getCount() {
+            return outODOrderArrayList.size();
+        }
+
+        @Override
+        public Order getItem(int i) {
+            return outODOrderArrayList.get(i);
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return i;
+        }
+
+        @SuppressLint("SetTextI18n")
+        @Override
+        public View getView(int i, View view, ViewGroup viewGroup) {
+            LayoutInflater inflater=getLayoutInflater();
+            View rowView;
+            TextView rowMessage,orderStatus;
+            Button orderBtn,contactBtn;
+            Order thisRow=getItem(i);
+            rowView=inflater.inflate(R.layout.show_list_resource,viewGroup,false);
+            rowMessage=rowView.findViewById(R.id.info_text_view);
+            orderStatus=rowView.findViewById(R.id.info_status_view);
+            orderBtn=rowView.findViewById(R.id.info_action_button);
+            contactBtn=rowView.findViewById(R.id.info_contact_button);
+            Boolean isOD=false;
+            SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            String nowDate=String.valueOf(year)+"-"+String.valueOf(month)+"-"+String.valueOf(day)+" "+String.valueOf(hour)+":"+String.valueOf(minute);
+            Date date1 = new Date(),date2 = new Date();
+            try {
+                date1=simpleDateFormat.parse(thisRow.getOrderDate());
+                date2=simpleDateFormat.parse(nowDate);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            isOD=checkOD(date1,date2);
+            Log.e("isod",String.valueOf(isOD));
+            if(thisRow.getOrderStatus().equals("2")){
+                if(isOD){
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_accept)+getResources().getString(R.string.status_outOfDate));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.status_work));
+                }else{
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_accept));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.status_work));
+                }
+                if(!isAlreadyOnWork){
+                    orderBtn.setOnClickListener(click->{
+                        WorkOnOrderTask workOnOrderTask=new WorkOnOrderTask();
+                        workOnOrderTask.execute(String.valueOf(thisRow.getId()));
+                    });
+                }else{
+                    orderBtn.setOnClickListener(click->{
+                        Toast.makeText(MyOrderActivity.this,"you already have an on work order",Toast.LENGTH_LONG).show();
+                    });
+                }
+
+            }else if(thisRow.getOrderStatus().equals("3")){
+                if(isOD){
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_work)+getResources().getString(R.string.status_outOfDate));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.on_work_btn));
+                }else{
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_work));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.on_work_btn));
+                }
+                orderBtn.setOnClickListener(click->{
+                    Intent intent=new Intent(MyOrderActivity.this,NowOrderActivity.class);
+                    startActivity(intent);
+                    finish();
+                });
+            }else if(thisRow.getOrderStatus().equals("4")){
+                if(isOD){
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_refuse)+getResources().getString(R.string.status_outOfDate));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.status_accept));
+                }else{
+                    orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_refuse));
+                    orderStatus.setTextColor(Color.BLACK);
+                    orderBtn.setText(getResources().getString(R.string.status_accept));
+                }
+            }else if(thisRow.getOrderStatus().equals("5")){
+                orderStatus.setText(getResources().getString(R.string.order_status_detail)+getResources().getString(R.string.status_done));
+                orderStatus.setTextColor(Color.BLACK);
+                orderBtn.setText("delete");
             }
             contactBtn.setOnClickListener(click->{
                 Intent callPhone=new Intent(Intent.ACTION_DIAL);
