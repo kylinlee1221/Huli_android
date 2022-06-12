@@ -63,6 +63,7 @@ public class MyOrderActivity extends AppCompatActivity {
         Spinner OrderFilter=findViewById(R.id.SP_orderFilter_MyOrder);
         orderList=findViewById(R.id.LV_orderList_MyOrder);
         swipeRefreshLayout=findViewById(R.id.SW_MyOrder);
+        swipeRefreshLayout.setColorSchemeColors(Color.GREEN);
         SharedPreferences sp=getSharedPreferences("login",MODE_PRIVATE);
         userId=sp.getLong("id",-1);
         GetOrderListByIdTask getOrderListByIdTask=new GetOrderListByIdTask();
@@ -114,6 +115,7 @@ public class MyOrderActivity extends AppCompatActivity {
                 try{
                     conn.connect();
                 }catch (SocketTimeoutException e){
+                    swipeRefreshLayout.setRefreshing(false);
                     e.printStackTrace();
                     return "timeout";
                 }
@@ -131,6 +133,7 @@ public class MyOrderActivity extends AppCompatActivity {
                 }
                 //addToInfo(buffer.toString());
             }catch (Exception e){
+                swipeRefreshLayout.setRefreshing(false);
                 e.printStackTrace();
                 return "error";
             }

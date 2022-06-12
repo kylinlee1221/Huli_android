@@ -8,6 +8,7 @@ public class User {
     private String telephone;
     private String role;
     private String description;
+    private String username;
     private Long id;
     public User(Long id,String fullname,String userId,String telephone,String role,String description){
         this.id=id;
@@ -17,10 +18,24 @@ public class User {
         this.role=role;
         this.description=description;
     }
+    public User(Long id,String fullname,String telephone,String username){
+        this.id=id;
+        this.fullname=fullname;
+        this.telephone=telephone;
+        this.username=username;
+    }
     public User(Long id,String fullname,String telephone){
         this.id=id;
         this.fullname=fullname;
         this.telephone=telephone;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public Long getId() {

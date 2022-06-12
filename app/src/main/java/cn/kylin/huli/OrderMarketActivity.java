@@ -66,6 +66,7 @@ public class OrderMarketActivity extends AppCompatActivity {
         Log.e("uid",String.valueOf(userid));
         infoList=findViewById(R.id.LV_orderList_Market);
         swipeRefreshLayout=findViewById(R.id.SW_OrderM);
+        swipeRefreshLayout.setColorSchemeColors(Color.GREEN);
         GetOrderListByIdTask getOrderListByIdTask=new GetOrderListByIdTask();
         getOrderListByIdTask.execute(String.valueOf(userid));
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -110,6 +111,7 @@ public class OrderMarketActivity extends AppCompatActivity {
                 try{
                     conn.connect();
                 }catch (SocketTimeoutException e){
+                    swipeRefreshLayout.setRefreshing(false);
                     e.printStackTrace();
                     return "timeout";
                 }
@@ -127,6 +129,7 @@ public class OrderMarketActivity extends AppCompatActivity {
                 }
                 //addToInfo(buffer.toString());
             }catch (Exception e){
+                swipeRefreshLayout.setRefreshing(false);
                 e.printStackTrace();
                 return "error";
             }
@@ -163,7 +166,7 @@ public class OrderMarketActivity extends AppCompatActivity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                if(!result.equals("error")&&!result.equals("timeout")){
+                if(!result.equals("error")&&!result.equals("timeout")&&!result.equals("[]")){
                     if(orderList.size()!=0){
                         adapter=new infoAdapter();
                         infoList.setAdapter(adapter);

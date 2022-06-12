@@ -17,6 +17,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Huli">
         <activity
+            android:name=".findPasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".VerifyUserActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EditUserActivity"
+            android:exported="false" />
+        <activity
             android:name=".NowOrderActivity"
             android:exported="false" />
         <activity

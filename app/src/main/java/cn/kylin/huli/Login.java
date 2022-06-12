@@ -1,5 +1,6 @@
 package cn.kylin.huli;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -38,6 +39,7 @@ import cn.kylin.huli.model.User;
 public class Login extends AppCompatActivity {
     private ArrayList<User> userList=new ArrayList<User>();
     private CheckBox rememberCB;
+    private int totalTriedTimes=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,7 +134,7 @@ public class Login extends AppCompatActivity {
         protected void onPostExecute(String s){
             super.onPostExecute(s);
             SharedPreferences sharedPreferences=getSharedPreferences("login",MODE_PRIVATE);
-            if(s.equals("timeout")||s.equals("error")){
+            if(s.equals("timeout")||s.equals("error")||s.equals("[]")){
                 Toast.makeText(Login.this,s,Toast.LENGTH_LONG).show();
             }else{
                 try {
@@ -175,7 +177,20 @@ public class Login extends AppCompatActivity {
                             finish();
                         }
                     }else if(jsonObject.getString("status").equals("2")){
-                        Toast.makeText(Login.this,"password error",Toast.LENGTH_LONG).show();
+                        totalTriedTimes++;
+                        if(totalTriedTimes<3){
+                            Toast.makeText(Login.this,"password error",Toast.LENGTH_LONG).show();
+                        }else{
+                            AlertDialog.Builder builder=new AlertDialog.Builder(Login.this);
+                            builder.setTitle("You tried 3 times,Do you want change password?");
+                            builder.setPositiveButton(getResources().getString(R.string.yes_btn),(click,arg)->{
+
+                            }).setNegativeButton(getResources().getString(R.string.no_btn),(click,arg)->{
+
+                            }).create().show();
+                            Toast.makeText(Login.this,"password error",Toast.LENGTH_LONG).show();
+                        }
+
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -246,7 +261,7 @@ public class Login extends AppCompatActivity {
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             SharedPreferences sharedPreferences=getSharedPreferences("login",MODE_PRIVATE);
-            if(s.equals("timeout")||s.equals("error")){
+            if(s.equals("timeout")||s.equals("error")||s.equals("[]")){
                 Toast.makeText(Login.this,s,Toast.LENGTH_LONG).show();
             }else{
                 try {
@@ -289,7 +304,19 @@ public class Login extends AppCompatActivity {
                             finish();
                         }
                     }else if(jsonObject.getString("status").equals("2")){
-                        Toast.makeText(Login.this,"password error",Toast.LENGTH_LONG).show();
+                        totalTriedTimes++;
+                        if(totalTriedTimes<3){
+                            Toast.makeText(Login.this,"password error",Toast.LENGTH_LONG).show();
+                        }else{
+                            AlertDialog.Builder builder=new AlertDialog.Builder(Login.this);
+                            builder.setTitle("You tried 3 times,Do you want change password?");
+                            builder.setPositiveButton(getResources().getString(R.string.yes_btn),(click,arg)->{
+
+                            }).setNegativeButton(getResources().getString(R.string.no_btn),(click,arg)->{
+
+                            }).create().show();
+                            Toast.makeText(Login.this,"password error",Toast.LENGTH_LONG).show();
+                        }
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();

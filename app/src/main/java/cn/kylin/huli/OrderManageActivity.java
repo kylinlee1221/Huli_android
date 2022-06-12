@@ -220,6 +220,7 @@ public class OrderManageActivity extends AppCompatActivity {
                 try{
                     conn.connect();
                 }catch (SocketTimeoutException e){
+                    swipeRefreshLayout.setRefreshing(false);
                     e.printStackTrace();
                     return "timeout";
                 }
@@ -237,6 +238,7 @@ public class OrderManageActivity extends AppCompatActivity {
                 }
                 //addToInfo(buffer.toString());
             }catch (Exception e){
+                swipeRefreshLayout.setRefreshing(false);
                 e.printStackTrace();
                 return "error";
             }

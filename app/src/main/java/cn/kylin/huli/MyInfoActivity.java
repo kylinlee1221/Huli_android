@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,6 +38,7 @@ public class MyInfoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_my_info);
         Button myOrderBtn=findViewById(R.id.BT_myOrder_MyInfo),addOrderBtn=findViewById(R.id.BT_addOrder_MyInfo),marketBtn=findViewById(R.id.BT_orderMarket_MyInfo);
         Button orderManageBtn=findViewById(R.id.BT_orderManage_MyInfo),nowOrderBtn=findViewById(R.id.BT_nowOrder_MyInfo),announceManageBtn=findViewById(R.id.BT_announceManage_MyInfo),logoutBtn=findViewById(R.id.BT_logout_MyInfo);
+        ImageView infoImage=findViewById(R.id.IV_head_MyInfo);
         infoTV=findViewById(R.id.TV_userInfo_MyInfo);
         SharedPreferences sp=getSharedPreferences("login",MODE_PRIVATE);
         String user_fullname=sp.getString("fullname","empty");
@@ -62,6 +64,11 @@ public class MyInfoActivity extends AppCompatActivity {
                     Intent intent=new Intent(this,Login.class);
                     startActivity(intent);
                     finish();
+            });
+            infoImage.setOnClickListener(click->{
+                Intent intent=new Intent(MyInfoActivity.this,EditUserActivity.class);
+                startActivity(intent);
+                finish();
             });
             infoTV.setOnClickListener(click->{
                 GetUserInfoTask getUserInfoTask1=new GetUserInfoTask();

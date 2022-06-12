@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/ET_username_register"
-        android:hint="username"
+        android:hint="@string/username_input_hint"
         android:maxLength="45"
         android:inputType="text"/>
 
@@ -20,21 +20,21 @@
         android:layout_height="wrap_content"
         android:id="@+id/ET_password_register"
         android:maxLength="45"
-        android:hint="password"
+        android:hint="@string/password_input_hint"
         android:inputType="textPassword"/>
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/ET_phoneNum_register"
-        android:hint="phonenum"
+        android:hint="@string/phone_input_hint"
         android:inputType="phone"/>
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/ET_realName_register"
-        android:hint="realname"
+        android:hint="@string/realName_input_hint"
         android:inputType="text"/>
 
     <RadioGroup
@@ -47,7 +47,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="User"
+            android:text="@string/role_user"
             android:checked="true"
             android:id="@+id/RB_role_user"/>
 
@@ -55,7 +55,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Admin"
+            android:text="@string/role_admin"
             android:id="@+id/RB_role_admin"/>
 
 
@@ -65,14 +65,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/ET_des_register"
-        android:hint="description"
+        android:hint="@string/description_input_hint"
         android:maxLength="255"
         android:inputType="text"/>
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="register"
+        android:text="@string/register_btn"
         android:id="@+id/BT_register"/>
 
 </LinearLayout>

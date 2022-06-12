@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.annotation.SuppressLint;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -15,9 +17,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -176,7 +180,7 @@ public class AnnounceManageActivity extends AppCompatActivity {
 
     public class UpdateAnnounceTask extends AsyncTask<String,Void,String>{
 
-        private String mUrl="https://huli.kylin1221.com/apis/manageAnnouncement.php?type={0}&anid={1}&anin={2}";
+        private String mUrl="https://huli.kylin1221.com/apis/manageAnnouncement.php?type={0}&anid={1}&anin={2}&endtime={3}";
 
         @Override
         protected String doInBackground(String... strings) {
@@ -184,7 +188,8 @@ public class AnnounceManageActivity extends AppCompatActivity {
             String type=params[0];
             String anid=params[1];
             String anin=params[2];
-            String url= MessageFormat.format(mUrl,type,anid,anin);
+            String endtime=params[3];
+            String url= MessageFormat.format(mUrl,type,anid,anin,endtime);
             Log.e("url",url);
             StringBuffer buffer=new StringBuffer();
             try{
@@ -382,12 +387,40 @@ public class AnnounceManageActivity extends AppCompatActivity {
             editBtn.setOnClickListener(click->{
                 View updateView=View.inflate(AnnounceManageActivity.this,R.layout.edit_announce_view,null);
                 EditText updateInfo=updateView.findViewById(R.id.ET_AnInfo_Edit);
+                Button dateChoser=updateView.findViewById(R.id.BT_DateChooser_Edit),timeChoser=updateView.findViewById(R.id.BT_TimeChooser_Edit);
+                dateChoser.setOnClickListener(click1->{
+                    final String[] timeChosed = {""};
+                    DatePickerDialog.OnDateSetListener listener=new DatePickerDialog.OnDateSetListener() {
+                        @Override
+                        public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+                            dateChoser.setText(String.valueOf(i)+"-"+String.valueOf((i1))+"-"+String.valueOf(i2));
+                        }
+                    };
+
+                    DatePickerDialog datePickerDialog=new DatePickerDialog(AnnounceManageActivity.this,0,listener,year,month,day);
+                    datePickerDialog.show();
+
+                    Log.e("time",timeChosed[0]);
+                    dateChoser.setText(timeChosed[0]);
+                });
+                timeChoser.setOnClickListener(click1->{
+                    final String[] timeChosed = {""};
+                    TimePickerDialog.OnTimeSetListener timeListener=new TimePickerDialog.OnTimeSetListener() {
+                        @Override
+                        public void onTimeSet(TimePicker timePicker, int i, int i1) {
+                            timeChoser.setText(String.valueOf(i)+":"+String.valueOf((i1)));
+                        }
+                    };
+                    TimePickerDialog timePickerDialog=new TimePickerDialog(AnnounceManageActivity.this,timeListener,hour,minute,true);
+                    timePickerDialog.show();
+                });
                 AlertDialog.Builder updateBuilder=new AlertDialog.Builder(AnnounceManageActivity.this);
                 updateInfo.setText(thisRow.getInfo());
                 updateBuilder.setView(updateView);
                 updateBuilder.setPositiveButton("update",(click1,arg1)->{
                     String newInfo=updateInfo.getText().toString();
-                    String params="update/"+String.valueOf(thisRow.getId())+"/"+newInfo;
+                    String time=dateChoser.getText().toString()+" "+timeChoser.getText().toString();
+                    String params="update/"+String.valueOf(thisRow.getId())+"/"+newInfo+"/"+time;
                     UpdateAnnounceTask updateAnnounceTask=new UpdateAnnounceTask();
                     updateAnnounceTask.execute(params);
                 }).create().show();

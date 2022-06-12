@@ -45,5 +45,11 @@
             android:id="@+id/BT_register"/>
     </LinearLayout>
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/BT_findPassword_login"
+        android:text="@string/change_password_btn"/>
+
 
 </LinearLayout>

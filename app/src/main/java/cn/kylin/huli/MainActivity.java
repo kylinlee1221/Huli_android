@@ -5,6 +5,7 @@ import static java.lang.Thread.*;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -62,7 +63,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        /**
+         * 注意: 即使您已经在AndroidManifest.xml中配置过appkey和channel值，也需要在App代码中调
+         * 用初始化接口（如需要使用AndroidManifest.xml中配置好的appkey和channel值，
+         * UMConfigure.init调用中appkey和channel参数请置为null）。
+         */
+        //UMConfigure.init(MainActivity.this, String appkey, String channel, int deviceType, String pushSecret);
+        //public static void preInit(Context context,String appkey,String channel);
+        //UMConfigure.preInit(this,"6263de1a30a4f67780b312f7","Umeng");
         //UMConfigure.init(this,"6263de1a30a4f67780b312f7","Umeng",UMConfigure.DEVICE_TYPE_PHONE,"");
+
         viewFlipper=findViewById(R.id.VF_NotifyBar2);
         RadioButton myInfoBtn=findViewById(R.id.RB_myInfo_Main),orderMarketBtn=findViewById(R.id.RB_orderMarket_Main);
         ImageButton closeAnnouncement=findViewById(R.id.IB_closeAnnouncement_Main),nowOrderBtn=findViewById(R.id.IB_orderNow_Main),myOrderBtn=findViewById(R.id.IB_myOrder_Main);
@@ -330,5 +340,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
 
         super.onStart();
+    }
+
+    // SDK预初始化函数不会采集设备信息，也不会向友盟后台上报数据。
+// preInit预初始化函数耗时极少，不会影响App首次冷启动用户体验
+    public static void preInit(Context context, String appkey, String channel){
+
     }
 }

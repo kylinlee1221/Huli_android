@@ -55,6 +55,7 @@ public class NowOrderActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_now_order);
         swipeRefreshLayout=findViewById(R.id.SW_NowOrder);
+        swipeRefreshLayout.setColorSchemeColors(Color.GREEN);
         orderList=findViewById(R.id.LV_orderList_NowOrder);
         SharedPreferences sp=getSharedPreferences("login",MODE_PRIVATE);
         userId=sp.getLong("id",-1);
@@ -96,6 +97,7 @@ public class NowOrderActivity extends AppCompatActivity {
                 try{
                     conn.connect();
                 }catch (SocketTimeoutException e){
+                    swipeRefreshLayout.setRefreshing(false);
                     e.printStackTrace();
                     return "timeout";
                 }
@@ -113,6 +115,7 @@ public class NowOrderActivity extends AppCompatActivity {
                 }
                 //addToInfo(buffer.toString());
             }catch (Exception e){
+                swipeRefreshLayout.setRefreshing(false);
                 e.printStackTrace();
                 return "error";
             }
