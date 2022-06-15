@@ -17,9 +17,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.InputStreamReader;
+import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
@@ -27,52 +30,33 @@ import cn.kylin.huli.model.User;
 
 public class findPasswordActivity extends AppCompatActivity {
     private ArrayList<User> userArrayList;
+    private SharedPreferences sp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_find_password);
-        SharedPreferences sp=getSharedPreferences("verify",MODE_PRIVATE);
+        sp=getSharedPreferences("verify",MODE_PRIVATE);
         userArrayList=new ArrayList<User>();
         Boolean isVerified=sp.getBoolean("isVerified",false);
         EditText usernameET=findViewById(R.id.ET_username_findPass),passwordET=findViewById(R.id.ET_password_findPass);
         Button findBtn=findViewById(R.id.BT_changePass_findPass);
         GetUserListTask getUserListTask=new GetUserListTask();
         getUserListTask.execute("gogogo");
-        if(isVerified){
-            usernameET.setVisibility(View.GONE);
-            passwordET.setVisibility(View.VISIBLE);
-        }else{
-            usernameET.setVisibility(View.VISIBLE);
-            passwordET.setVisibility(View.GONE);
-        }
         findBtn.setOnClickListener(click->{
             String UsernameST=usernameET.getText().toString().trim();
             if(matchPhoneNumber(UsernameST)){
                 if(checkUserNameByPhone(UsernameST)){
-                    if(isVerified){
-                        usernameET.setVisibility(View.GONE);
-                        passwordET.setVisibility(View.VISIBLE);
-                    }else{
-                        usernameET.setVisibility(View.VISIBLE);
-                        passwordET.setVisibility(View.GONE);
                         Intent intent=new Intent(findPasswordActivity.this,VerifyUserActivity.class);
                         startActivity(intent);
+                        //sp.edit().putLong()
                         finish();
-                    }
                 }
             }else{
                 if(checkUserName(UsernameST)){
-                    if(isVerified){
-                        usernameET.setVisibility(View.GONE);
-                        passwordET.setVisibility(View.VISIBLE);
-                    }else{
-                        usernameET.setVisibility(View.VISIBLE);
-                        passwordET.setVisibility(View.GONE);
                         Intent intent=new Intent(findPasswordActivity.this,VerifyUserActivity.class);
                         startActivity(intent);
                         finish();
-                    }
                 }
             }
         });
@@ -148,6 +132,7 @@ public class findPasswordActivity extends AppCompatActivity {
     private boolean checkUserNameByPhone(String userName){
         for(User user:userArrayList){
             if(user.getTelephone().equals(userName)){
+                sp.edit().putLong("userid",user.getId()).apply();
                 return true;
             }
         }
@@ -157,9 +142,24 @@ public class findPasswordActivity extends AppCompatActivity {
     private boolean checkUserName(String userName){
         for(User user:userArrayList){
             if(user.getUsername().equals(userName)){
+                sp.edit().putLong("userid",user.getId()).apply();
                 return true;
             }
         }
         return false;
+    }
+
+    private static String md5(String input) throws NoSuchAlgorithmException {
+        String result=input;
+        if(input!=null){
+            MessageDigest md=MessageDigest.getInstance("MD5");
+            md.update(input.getBytes());
+            BigInteger hash =new BigInteger(1,md.digest());
+            result=hash.toString(16);
+            while(result.length()<32){
+                result="0"+result;
+            }
+        }
+        return result;
     }
 }

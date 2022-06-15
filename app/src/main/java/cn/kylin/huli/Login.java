@@ -46,9 +46,14 @@ public class Login extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         EditText usernameET=findViewById(R.id.ET_username_login),passwordET=findViewById(R.id.ET_password_login);
-        Button loginBtn=findViewById(R.id.BT_login),registerBtn=findViewById(R.id.BT_register);
+        Button loginBtn=findViewById(R.id.BT_login),registerBtn=findViewById(R.id.BT_register),changePassBtn=findViewById(R.id.BT_findPassword_login);
         rememberCB=findViewById(R.id.CB_remember_login);
         SharedPreferences sharedPreferences=getSharedPreferences("login",MODE_PRIVATE);
+        changePassBtn.setOnClickListener(click->{
+            Intent intent=new Intent(Login.this,findPasswordActivity.class);
+            startActivity(intent);
+            finish();
+        });
         loginBtn.setOnClickListener(click->{
             String usernameST=usernameET.getText().toString();
             final String[] passwordST = { passwordET.getText().toString() };

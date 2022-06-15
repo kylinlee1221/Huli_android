@@ -120,7 +120,7 @@ public class VerifyUserActivity extends AppCompatActivity {
                         verifyEditor.putBoolean("isVerified",true);
                         verifyEditor.apply();
                         Toast.makeText(VerifyUserActivity.this,msgs,Toast.LENGTH_LONG).show();
-                        Intent intent=new Intent(VerifyUserActivity.this,findPasswordActivity.class);
+                        Intent intent=new Intent(VerifyUserActivity.this,ChangePasswordActivity.class);
                         startActivity(intent);
                         finish();
                     }else{
