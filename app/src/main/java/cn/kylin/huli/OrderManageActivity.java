@@ -35,6 +35,7 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import cn.kylin.huli.model.Order;
@@ -412,10 +413,10 @@ public class OrderManageActivity extends AppCompatActivity {
                     };
 
                     DatePickerDialog datePickerDialog=new DatePickerDialog(OrderManageActivity.this,0,listener,year,month,day);
+                    datePickerDialog.setCancelable(false);
                     datePickerDialog.show();
-
-                    Log.e("time",timeChosed[0]);
-                    dateChoser.setText(timeChosed[0]);
+                    //Log.e("time",timeChosed[0]);
+                    //dateChoser.setText(timeChosed[0]);
                 });
                 timeChoser.setOnClickListener(click2->{
                     final String[] timeChosed = {""};
@@ -426,15 +427,29 @@ public class OrderManageActivity extends AppCompatActivity {
                         }
                     };
                     TimePickerDialog timePickerDialog=new TimePickerDialog(OrderManageActivity.this,timeListener,hour,minute,true);
+                    timePickerDialog.setCancelable(false);
                     timePickerDialog.show();
                 });
                 updateBuilder.setView(updateView);
                 updateBuilder.setTitle("Modify order");
                 updateBuilder.setPositiveButton("Modify",(click1,arg1)->{
+                    String originDateBtn=getResources().getString(R.string.date_chose_btn)+" "+getResources().getString(R.string.time_chose_btn);
+                    originDateBtn=originDateBtn.toLowerCase(Locale.ROOT);
                     String moneyST=orderMoneyET.getText().toString(),paidST=alreadyPaidET.getText().toString(),dateST=dateChoser.getText().toString(),timeST=timeChoser.getText().toString(),placeST=placeET.getText().toString();
-                    String params=String.valueOf(thisRow.getId())+"/"+moneyST+"/"+paidST+"/"+dateST+" "+timeST+"/"+placeST;
-                    ModifyOrderTask modifyOrderTask=new ModifyOrderTask();
-                    modifyOrderTask.execute(params);
+                    dateST=dateST.toLowerCase(Locale.ROOT);
+                    timeST=timeST.toLowerCase(Locale.ROOT);
+                    Log.e("dateST",dateST);
+                    Log.e("timeST",timeST);
+                    //Log.e("date+timest",dateST+" "+timeST);
+                    //Log.e("originDate",getResources().getString(R.string.date_chose_btn));
+                    //Log.e("compare Date",String.valueOf(getResources().getString(R.string.date_chose_btn).equals(dateST)));
+                    if(originDateBtn.equals(dateST+" "+timeST)||dateST.equals(getResources().getString(R.string.date_chose_btn).toLowerCase(Locale.ROOT))||timeST.equals(getResources().getString(R.string.time_chose_btn).toLowerCase(Locale.ROOT))||dateST.equals("")||timeST.equals("")){
+                        Toast.makeText(OrderManageActivity.this,getResources().getText(R.string.chose_date_error),Toast.LENGTH_LONG).show();
+                    }else{
+                        String params=String.valueOf(thisRow.getId())+"/"+moneyST+"/"+paidST+"/"+dateST+" "+timeST+"/"+placeST;
+                        ModifyOrderTask modifyOrderTask=new ModifyOrderTask();
+                        modifyOrderTask.execute(params);
+                    }
                 }).create().show();
             });
             rowMessage.setText(getResources().getString(R.string.order_name_detail)+thisRow.getOrdername()+"\n"+getResources().getString(R.string.order_money_detail)+thisRow.getOrderprice()+"\n"+getResources().getString(R.string.order_paid_detail)+thisRow.getOrderpaid()+"\n"+getResources().getString(R.string.order_place_detail)+thisRow.getOrderplace()+"\n"+getResources().getString(R.string.order_phone_detail)+thisRow.getOrderPhone()+"\n"+getResources().getString(R.string.order_start_detail)+thisRow.getOrderStart()+"\n"+getResources().getString(R.string.order_end_detail)+thisRow.getOrderDate());

@@ -30,13 +30,13 @@
             android:layout_height="wrap_content"
             android:id="@+id/BT_DateChooser_Announ"
             android:layout_weight="2"
-            android:text="chose date"/>
+            android:text="@string/date_chose_btn"/>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:id="@+id/BT_TimeChooser_Announ"
-            android:text="chose time"/>
+            android:text="@string/time_chose_btn"/>
     </LinearLayout>
 
     <Button

@@ -38,6 +38,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import cn.kylin.huli.model.Announcement;
@@ -398,10 +399,11 @@ public class AnnounceManageActivity extends AppCompatActivity {
                     };
 
                     DatePickerDialog datePickerDialog=new DatePickerDialog(AnnounceManageActivity.this,0,listener,year,month,day);
+                    datePickerDialog.setCancelable(false);
                     datePickerDialog.show();
 
-                    Log.e("time",timeChosed[0]);
-                    dateChoser.setText(timeChosed[0]);
+                    //Log.e("time",timeChosed[0]);
+                    //dateChoser.setText(timeChosed[0]);
                 });
                 timeChoser.setOnClickListener(click1->{
                     final String[] timeChosed = {""};
@@ -412,6 +414,7 @@ public class AnnounceManageActivity extends AppCompatActivity {
                         }
                     };
                     TimePickerDialog timePickerDialog=new TimePickerDialog(AnnounceManageActivity.this,timeListener,hour,minute,true);
+                    timePickerDialog.setCancelable(false);
                     timePickerDialog.show();
                 });
                 AlertDialog.Builder updateBuilder=new AlertDialog.Builder(AnnounceManageActivity.this);
@@ -420,9 +423,18 @@ public class AnnounceManageActivity extends AppCompatActivity {
                 updateBuilder.setPositiveButton("update",(click1,arg1)->{
                     String newInfo=updateInfo.getText().toString();
                     String time=dateChoser.getText().toString()+" "+timeChoser.getText().toString();
-                    String params="update/"+String.valueOf(thisRow.getId())+"/"+newInfo+"/"+time;
-                    UpdateAnnounceTask updateAnnounceTask=new UpdateAnnounceTask();
-                    updateAnnounceTask.execute(params);
+                    String originDateBtn=getResources().getString(R.string.date_chose_btn)+" "+getResources().getString(R.string.time_chose_btn);
+                    originDateBtn=originDateBtn.toLowerCase(Locale.ROOT);
+                    time=time.toLowerCase(Locale.ROOT);
+                    Log.e("time",time);
+                    Log.e("origin",originDateBtn);
+                    if(time.equals(originDateBtn)||time.contains(getResources().getString(R.string.date_chose_btn).toLowerCase(Locale.ROOT))||time.contains(getResources().getString(R.string.time_chose_btn).toLowerCase(Locale.ROOT))||time.equals(" ")){
+                        Toast.makeText(AnnounceManageActivity.this,getResources().getText(R.string.chose_date_error),Toast.LENGTH_LONG).show();
+                    }else{
+                        String params="update/"+String.valueOf(thisRow.getId())+"/"+newInfo+"/"+time;
+                        UpdateAnnounceTask updateAnnounceTask=new UpdateAnnounceTask();
+                        updateAnnounceTask.execute(params);
+                    }
                 }).create().show();
             });
             rowMessage.setTextColor(Color.BLACK);

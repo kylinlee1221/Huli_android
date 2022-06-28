@@ -28,6 +28,7 @@ import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
@@ -67,10 +68,11 @@ public class AddOrderActivity extends AppCompatActivity {
             };
 
             DatePickerDialog datePickerDialog=new DatePickerDialog(this,0,listener,year,month,day);
+            datePickerDialog.setCancelable(false);
             datePickerDialog.show();
 
-            Log.e("time",timeChosed[0]);
-            dateChoser.setText(timeChosed[0]);
+            //Log.e("time",timeChosed[0]);
+            //dateChoser.setText(timeChosed[0]);
         });
         timeChoser.setOnClickListener(click->{
             final String[] timeChosed = {""};
@@ -81,6 +83,7 @@ public class AddOrderActivity extends AppCompatActivity {
                 }
             };
             TimePickerDialog timePickerDialog=new TimePickerDialog(this,timeListener,hour,minute,true);
+            timePickerDialog.setCancelable(false);
             timePickerDialog.show();
         });
         BeginDateChoser.setOnClickListener(click->{
@@ -93,10 +96,11 @@ public class AddOrderActivity extends AppCompatActivity {
             };
 
             DatePickerDialog datePickerDialog=new DatePickerDialog(this,0,listener,year,month,day);
+            datePickerDialog.setCancelable(false);
             datePickerDialog.show();
 
-            Log.e("time",timeChosed[0]);
-            BeginDateChoser.setText(timeChosed[0]);
+            //Log.e("time",timeChosed[0]);
+            //BeginDateChoser.setText(timeChosed[0]);
         });
         BeginTimeChoser.setOnClickListener(click->{
             final String[] timeChosed = {""};
@@ -107,6 +111,7 @@ public class AddOrderActivity extends AppCompatActivity {
                 }
             };
             TimePickerDialog timePickerDialog=new TimePickerDialog(this,timeListener,hour,minute,true);
+            timePickerDialog.setCancelable(false);
             timePickerDialog.show();
         });
         SharedPreferences sp=getSharedPreferences("login",MODE_PRIVATE);
@@ -116,15 +121,23 @@ public class AddOrderActivity extends AppCompatActivity {
             String nameST=orderNameET.getText().toString(),moneyST=moneyET.getText().toString(),paidST=paidET.getText().toString(),placeST=placeET.getText().toString(),details=deatisET.getText().toString();
             String time=dateChoser.getText().toString()+" "+timeChoser.getText().toString(),phoneST=phoneET.getText().toString(),beginTime=BeginDateChoser.getText().toString()+" "+BeginTimeChoser.getText().toString();
             Long toid = null;
+            String originDateBtn=getResources().getString(R.string.date_chose_btn)+" "+getResources().getString(R.string.time_chose_btn);
+            originDateBtn=originDateBtn.toLowerCase(Locale.ROOT);
+            time=time.toLowerCase(Locale.ROOT);
+            beginTime=beginTime.toLowerCase(Locale.ROOT);
             for(User user:userArrayList){
                 if(user.getFullname().equals(userSP.getSelectedItem())){
                     toid=user.getId();
                 }
             }
             if(userid>=0&&matchPhoneNumber(phoneST)){
-                String params=nameST+"/"+moneyST+"/"+paidST+"/"+String.valueOf(userid)+"/"+String.valueOf(toid)+"/"+time+"/"+beginTime+"/"+placeST+"/"+details+"/"+phoneST;
-                AddOrderTask addOrderTask=new AddOrderTask();
-                addOrderTask.execute(params);
+                if(time.equals(originDateBtn)||time.contains(getResources().getString(R.string.date_chose_btn).toLowerCase(Locale.ROOT))||time.contains(getResources().getString(R.string.time_chose_btn).toLowerCase(Locale.ROOT))||time.equals(" ")||beginTime.equals(originDateBtn)||beginTime.contains(getResources().getString(R.string.date_chose_btn).toLowerCase(Locale.ROOT))||beginTime.contains(getResources().getString(R.string.time_chose_btn).toLowerCase(Locale.ROOT))||beginTime.equals(" ")){
+                    Toast.makeText(AddOrderActivity.this,getResources().getText(R.string.chose_date_error),Toast.LENGTH_LONG).show();
+                }else {
+                    String params = nameST + "/" + moneyST + "/" + paidST + "/" + String.valueOf(userid) + "/" + String.valueOf(toid) + "/" + time + "/" + beginTime + "/" + placeST + "/" + details + "/" + phoneST;
+                    AddOrderTask addOrderTask = new AddOrderTask();
+                    addOrderTask.execute(params);
+                }
             }
 
         });
@@ -171,7 +184,7 @@ public class AddOrderActivity extends AppCompatActivity {
         protected void onPostExecute(String result){
             super.onPostExecute(result);
             try {
-                if(!result.equals("error")&&!result.equals("timeout")) {
+                if(!result.equals("error")&&!result.equals("timeout")&&!result.equals("[]")) {
                     JSONArray jsonArray = new JSONArray(result);
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject jsonObject = jsonArray.getJSONObject(i);
@@ -242,7 +255,7 @@ public class AddOrderActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result){
             super.onPostExecute(result);
-            if(result.equals("error")||result.equals("timeout")){
+            if(result.equals("error")||result.equals("timeout")||result.equals("[]")){
                 Toast.makeText(AddOrderActivity.this,result,Toast.LENGTH_LONG).show();
             }else{
                 Toast.makeText(AddOrderActivity.this,"add success",Toast.LENGTH_LONG).show();

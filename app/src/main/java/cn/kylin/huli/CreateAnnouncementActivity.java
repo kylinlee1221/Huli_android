@@ -29,6 +29,7 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -55,10 +56,11 @@ public class CreateAnnouncementActivity extends AppCompatActivity {
             };
 
             DatePickerDialog datePickerDialog=new DatePickerDialog(this,0,listener,year,month,day);
+            datePickerDialog.setCancelable(false);
             datePickerDialog.show();
 
-            Log.e("time",timeChosed[0]);
-            dateChoser.setText(timeChosed[0]);
+            //Log.e("time",timeChosed[0]);
+            //dateChoser.setText(timeChosed[0]);
         });
         timeChoser.setOnClickListener(click->{
             final String[] timeChosed = {""};
@@ -69,6 +71,7 @@ public class CreateAnnouncementActivity extends AppCompatActivity {
                 }
             };
             TimePickerDialog timePickerDialog=new TimePickerDialog(this,timeListener,hour,minute,true);
+            timePickerDialog.setCancelable(false);
             timePickerDialog.show();
         });
         SharedPreferences sp=getSharedPreferences("login",MODE_PRIVATE);
@@ -76,9 +79,17 @@ public class CreateAnnouncementActivity extends AppCompatActivity {
         Log.e("uid",String.valueOf(userid));
         addBtn.setOnClickListener(click->{
             if(!announET.getText().toString().equals("")&&injectSqlChecker(announET.getText().toString())){
-                CreateAnnouncementTask createAnnouncementTask=new CreateAnnouncementTask();
-                String params=String.valueOf(userid)+"/"+announET.getText().toString()+"/"+dateChoser.getText().toString()+" "+timeChoser.getText().toString();
-                createAnnouncementTask.execute(params);
+                String time=dateChoser.getText().toString()+" "+timeChoser.getText().toString();
+                String originDateBtn=getResources().getString(R.string.date_chose_btn)+" "+getResources().getString(R.string.time_chose_btn);
+                originDateBtn=originDateBtn.toLowerCase(Locale.ROOT);
+                time=time.toLowerCase(Locale.ROOT);
+                if(time.equals(originDateBtn)||time.contains(getResources().getString(R.string.date_chose_btn).toLowerCase(Locale.ROOT))||time.contains(getResources().getString(R.string.time_chose_btn).toLowerCase(Locale.ROOT))||time.equals(" ")){
+                    Toast.makeText(CreateAnnouncementActivity.this,getResources().getText(R.string.chose_date_error),Toast.LENGTH_LONG).show();
+                }else {
+                    CreateAnnouncementTask createAnnouncementTask = new CreateAnnouncementTask();
+                    String params = String.valueOf(userid) + "/" + announET.getText().toString() + "/" + dateChoser.getText().toString() + " " + timeChoser.getText().toString();
+                    createAnnouncementTask.execute(params);
+                }
             }
         });
     }
@@ -142,7 +153,7 @@ public class CreateAnnouncementActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result){
             super.onPostExecute(result);
-            if(result.trim().equals("timeout")||result.trim().equals("error")){
+            if(result.trim().equals("timeout")||result.trim().equals("error")||result.trim().equals("[]")){
                 Toast.makeText(CreateAnnouncementActivity.this,result,Toast.LENGTH_LONG).show();
             }else {
                 try {
