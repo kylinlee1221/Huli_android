@@ -11,6 +11,8 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -30,6 +32,7 @@ import java.util.concurrent.ExecutionException;
 
 public class MyInfoActivity extends AppCompatActivity {
     private TextView infoTV;
+    private Long userid;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -42,7 +45,7 @@ public class MyInfoActivity extends AppCompatActivity {
         infoTV=findViewById(R.id.TV_userInfo_MyInfo);
         SharedPreferences sp=getSharedPreferences("login",MODE_PRIVATE);
         String user_fullname=sp.getString("fullname","empty");
-        Long userid=sp.getLong("id",-1);
+        userid=sp.getLong("id",-1);
         Log.e("userid",String.valueOf(userid));
         if(user_fullname.equals("empty")){
             Toast.makeText(this,getResources().getString(R.string.no_login_hint),Toast.LENGTH_LONG).show();
@@ -198,5 +201,39 @@ public class MyInfoActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_personpage,menu); //通过getMenuInflater()方法得到MenuInflater对象，再调用它的inflate()方法就可以给当前活动创建菜单了，第一个参数：用于指定我们通过哪一个资源文件来创建菜单；第二个参数：用于指定我们的菜单项将添加到哪一个Menu对象当中。
+        return true; // true：允许创建的菜单显示出来，false：创建的菜单将无法显示。
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()){
+            case R.id.refresh_person_menu:
+                GetUserInfoTask getUserInfoTask=new GetUserInfoTask();
+                getUserInfoTask.execute(String.valueOf(userid));
+                Toast.makeText(MyInfoActivity.this, "get userinfo", Toast.LENGTH_SHORT).show();
+                //finish();
+                break;
+            case R.id.settings_person_menu:
+                Intent intent=new Intent(MyInfoActivity.this,UserSettingsActivity.class);
+                startActivity(intent);
+                finish();
+                break;
+            case R.id.home_person_menu:
+                Intent intent1=new Intent(MyInfoActivity.this,MainActivity.class);
+                startActivity(intent1);
+                finish();
+                break;
+            default:
+                break;
+        }
+
+        return true;
     }
 }
