@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import cn.kylin.huli.model.User;
@@ -134,9 +135,14 @@ public class AddOrderActivity extends AppCompatActivity {
                 if(time.equals(originDateBtn)||time.contains(getResources().getString(R.string.date_chose_btn).toLowerCase(Locale.ROOT))||time.contains(getResources().getString(R.string.time_chose_btn).toLowerCase(Locale.ROOT))||time.equals(" ")||beginTime.equals(originDateBtn)||beginTime.contains(getResources().getString(R.string.date_chose_btn).toLowerCase(Locale.ROOT))||beginTime.contains(getResources().getString(R.string.time_chose_btn).toLowerCase(Locale.ROOT))||beginTime.equals(" ")){
                     Toast.makeText(AddOrderActivity.this,getResources().getText(R.string.chose_date_error),Toast.LENGTH_LONG).show();
                 }else {
-                    String params = nameST + "/" + moneyST + "/" + paidST + "/" + String.valueOf(userid) + "/" + String.valueOf(toid) + "/" + time + "/" + beginTime + "/" + placeST + "/" + details + "/" + phoneST;
-                    AddOrderTask addOrderTask = new AddOrderTask();
-                    addOrderTask.execute(params);
+                    if(injectSqlChecker(nameST)&&injectSqlChecker(placeST)&injectSqlChecker(details)){
+                        String params = nameST + "/" + moneyST + "/" + paidST + "/" + String.valueOf(userid) + "/" + String.valueOf(toid) + "/" + time + "/" + beginTime + "/" + placeST + "/" + details + "/" + phoneST;
+                        AddOrderTask addOrderTask = new AddOrderTask();
+                        addOrderTask.execute(params);
+                    }else{
+                        Toast.makeText(AddOrderActivity.this,"inject check failed",Toast.LENGTH_LONG).show();
+                    }
+
                 }
             }
 
@@ -308,5 +314,19 @@ public class AddOrderActivity extends AppCompatActivity {
         }catch (JSONException e){
             e.printStackTrace();
         }
+    }
+
+    private static boolean injectSqlChecker(String input){
+        String reg = "(?:')|(?:--)|(/\\*(?:.|[\\n\\r])*?\\*/)|"
+                + "(\\b(select|update|and|or|delete|insert|trancate|char|into|substr|ascii|declare|exec|count|master|into|drop|execute)\\b)";
+        Pattern sqlPattern=Pattern.compile(reg,Pattern.CASE_INSENSITIVE);
+        if(input==null||input.length()<=0){
+            return false;
+        }
+        Matcher matcher=sqlPattern.matcher(input);
+        if(matcher.find()){
+            return false;
+        }
+        return true;
     }
 }

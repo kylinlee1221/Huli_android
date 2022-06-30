@@ -125,7 +125,7 @@ public class RegisterActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result){
             super.onPostExecute(result);
-            if(result.equals("timeout")||result.equals("error")){
+            if(result.equals("timeout")||result.equals("error")||result.equals("[]")){
                 Toast.makeText(RegisterActivity.this,result,Toast.LENGTH_LONG).show();
             }else{
                 try{

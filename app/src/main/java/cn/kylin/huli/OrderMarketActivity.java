@@ -142,7 +142,7 @@ public class OrderMarketActivity extends AppCompatActivity {
         protected void onPostExecute(String result){
             super.onPostExecute(result);
             orderList.clear();
-            if(!result.equals("error")){
+            if(!result.equals("error")&&!result.equals("timeout")&&!result.equals("[]")){
                 JSONArray jsonArray = null;
                 try {
                     jsonArray = new JSONArray(result);
