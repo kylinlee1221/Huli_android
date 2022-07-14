@@ -2,6 +2,7 @@ package cn.kylin.huli;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -16,6 +18,13 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
+import com.lljjcoder.Interface.OnCityItemClickListener;
+import com.lljjcoder.bean.CityBean;
+import com.lljjcoder.bean.DistrictBean;
+import com.lljjcoder.bean.ProvinceBean;
+import com.lljjcoder.citywheel.CityConfig;
+import com.lljjcoder.style.citypickerview.CityPickerView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -54,6 +63,7 @@ public class AddOrderActivity extends AppCompatActivity {
         Button BeginDateChoser=findViewById(R.id.BT_DateChooser_start_Add),BeginTimeChoser=findViewById(R.id.BT_TimeChooser_start_Add);
         userArrayList=new ArrayList<User>();
         getDateTime();
+        showCityPicker();
         //userList.add("all");
         arrayAdapter=new ArrayAdapter<String>(this,R.layout.item_dropdown,userList);
         userSP.setAdapter(arrayAdapter);
@@ -146,6 +156,36 @@ public class AddOrderActivity extends AppCompatActivity {
                 }
             }
 
+        });
+    }
+
+    public void showCityPicker(){
+        final CityPickerView cityPickerView=new CityPickerView();
+        cityPickerView.init(AddOrderActivity.this);
+        CityConfig cityConfig=new CityConfig.Builder()
+                .province("河南省")
+                .city("郑州市")
+                .district("金水区")
+                .provinceCyclic(true)
+                .cityCyclic(true)
+                .districtCyclic(true)
+                .title(getResources().getString(R.string.city_choser_title))
+                .build();
+        cityPickerView.setConfig(cityConfig);
+        final EditText editCity=findViewById(R.id.ET_place_Add);
+        editCity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cityPickerView.setOnCityItemClickListener(new OnCityItemClickListener() {
+                    @SuppressLint("SetTextI18n")
+                    @Override
+                    public void onSelected(ProvinceBean province, CityBean city, DistrictBean district) {
+                        super.onSelected(province, city, district);
+                        editCity.setText(province+" "+city+" "+district);
+                    }
+                });
+                cityPickerView.showCityPicker();
+            }
         });
     }
 

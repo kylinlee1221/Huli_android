@@ -180,6 +180,7 @@ public class OrderMarketActivity extends AppCompatActivity {
                                 //mediaPlayer.setVolume(1.0f,1.0f);
                                 mediaPlayer.start();
                             }
+                           // startService(new Intent(OrderMarketActivity.this,NewOrderNotificationService.class));
                         }
                     }
                 }else{

@@ -167,6 +167,7 @@ public class NowOrderActivity extends AppCompatActivity {
                 try {
                     conn.connect();
                 } catch (SocketTimeoutException e) {
+                    swipeRefreshLayout.setRefreshing(false);
                     e.printStackTrace();
                     return "timeout";
                 }
@@ -184,6 +185,7 @@ public class NowOrderActivity extends AppCompatActivity {
                 }
                 //addToInfo(buffer.toString());
             } catch (Exception e) {
+                swipeRefreshLayout.setRefreshing(false);
                 e.printStackTrace();
                 return "error";
             }
@@ -220,7 +222,7 @@ public class NowOrderActivity extends AppCompatActivity {
                                 Order tmpOrder = new Order(id, ordername, orderplace, orderend, orderStart, orderprice, orderpaid, orderStatus, cusPhone);
                                 orderArrayList.add(tmpOrder);
                                 Long remainEndTime=TimeDiffByMinute(orderend),remainStartTime=TimeDiffByMinute(orderStart);
-                                if(remainEndTime<=5){
+                                if(remainEndTime<=5&&remainEndTime>0){
                                     MediaPlayer mediaPlayer=MediaPlayer.create(NowOrderActivity.this,R.raw.checkout_hint);
                                     if(!mediaPlayer.isPlaying()){
                                         //mediaPlayer.setVolume(1.0f,1.0f);

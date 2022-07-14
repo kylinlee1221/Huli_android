@@ -43,6 +43,7 @@ public class CreateAnnouncementActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_annoucement);
         getDateTime();
+        Log.e("language",Locale.getDefault().getLanguage());
         //Button timePicker=findViewById(R.id.BT_TimeChooser_Announ);
         Button dateChoser=findViewById(R.id.BT_DateChooser_Announ),timeChoser=findViewById(R.id.BT_TimeChooser_Announ),addBtn=findViewById(R.id.BT_AddAnnouncement_Announ);
         EditText announET=findViewById(R.id.ET_announcement_Announ);
@@ -108,16 +109,6 @@ public class CreateAnnouncementActivity extends AppCompatActivity {
             String url= MessageFormat.format(mAddUrl,sendby,announ,endtime);
             Log.e("url",url);
             StringBuffer buffer=new StringBuffer();
-            /*HttpReqData reqData=new HttpReqData(url);
-            HttpRespData respData= HttpRequestUtil.getData(reqData);
-            if(respData.err_msg.length()<=0){
-                try{
-                    JSONObject obj=new JSONObject(respData.content);
-
-                }catch (JSONException e){
-                    Log.e("jsonException",e.toString());
-                }
-            }*/
             try{
                 URL url1=new URL(url);
                 HttpURLConnection conn=(HttpURLConnection) url1.openConnection();

@@ -94,6 +94,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/ET_place_Add"
         android:inputType="text"
+        android:clickable="true"
+        android:focusableInTouchMode="false"
         android:hint="@string/order_place_hint"/>
 
     <EditText

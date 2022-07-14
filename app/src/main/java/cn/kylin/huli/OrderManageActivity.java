@@ -53,6 +53,7 @@ public class OrderManageActivity extends AppCompatActivity {
         setContentView(R.layout.activity_order_manage);
         infoList=findViewById(R.id.LV_orderList_OManage);
         swipeRefreshLayout=findViewById(R.id.SW_OrderManage);
+        swipeRefreshLayout.setColorSchemeColors(Color.GREEN);
         GetOrderListTask getOrderListTask=new GetOrderListTask();
         getDateTime();
         getOrderListTask.execute("gogogo");

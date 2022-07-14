@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -27,6 +28,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -37,6 +39,7 @@ import cn.kylin.huli.Utils.tool.HttpRespData;
 import cn.kylin.huli.model.User;
 
 public class Login extends AppCompatActivity {
+    private int day,month,year,hour,minute,second;
     private ArrayList<User> userList=new ArrayList<User>();
     private CheckBox rememberCB;
     private int totalTriedTimes=0;
@@ -49,12 +52,21 @@ public class Login extends AppCompatActivity {
         Button loginBtn=findViewById(R.id.BT_login),registerBtn=findViewById(R.id.BT_register),changePassBtn=findViewById(R.id.BT_findPassword_login);
         rememberCB=findViewById(R.id.CB_remember_login);
         SharedPreferences sharedPreferences=getSharedPreferences("login",MODE_PRIVATE);
+        Log.e("MANUFACTURER=" , Build.MANUFACTURER);
+
+        Log.e("BRAND=" , Build.BRAND);
+
+        Log.e("MODEL=" , Build.MODEL);
+        String phoneName=Build.MODEL;
+
         changePassBtn.setOnClickListener(click->{
             Intent intent=new Intent(Login.this,findPasswordActivity.class);
             startActivity(intent);
             finish();
         });
         loginBtn.setOnClickListener(click->{
+            getDateTime();
+            String nowDate=String.valueOf(year)+"-"+String.valueOf(month)+"-"+String.valueOf(day)+" "+String.valueOf(hour)+":"+String.valueOf(minute);
             String usernameST=usernameET.getText().toString();
             final String[] passwordST = { passwordET.getText().toString() };
             if(usernameST.equals("")|| passwordST[0].equals("")||!injectSqlChecker(usernameST)||!injectSqlChecker(passwordST[0])){
@@ -66,7 +78,7 @@ public class Login extends AppCompatActivity {
                     } catch (NoSuchAlgorithmException e) {
                         e.printStackTrace();
                     }
-                    String userInfo=usernameST+"/"+ passwordST[0];
+                    String userInfo=usernameST+"/"+ passwordST[0]+"/"+phoneName+"/"+nowDate;
                     String result="";
                     GetLoginResultByPhoneTask getLoginResultByPhoneTask=new GetLoginResultByPhoneTask();
                     getLoginResultByPhoneTask.execute(userInfo);
@@ -76,7 +88,7 @@ public class Login extends AppCompatActivity {
                     } catch (NoSuchAlgorithmException e) {
                         e.printStackTrace();
                     }
-                    String userInfo=usernameST+"/"+ passwordST[0];
+                    String userInfo=usernameST+"/"+ passwordST[0]+"/"+phoneName+"/"+nowDate;
                     String result="";
                     GetLoginResultTask getLoginResultTask=new GetLoginResultTask();
                     getLoginResultTask.execute(userInfo);
@@ -90,16 +102,18 @@ public class Login extends AppCompatActivity {
         });
     }
     public class GetLoginResultTask extends AsyncTask<String,Void,String>{
-        private String mLoginUrl="https://huli.kylin1221.com/apis/login.php?type=username&username={0}&password={1}";
+        private String mLoginUrl="https://huli.kylin1221.com/apis/login.php?type=username&username={0}&password={1}&dtype={2}&time={3}";
 
         @Override
         protected String doInBackground(String... strings) {
             String[] params=strings[0].split("/");
             String user=params[0];
             String pass=params[1];
+            String dtype=params[2];
+            String time=params[3];
             Log.e("user",user);
             Log.e("pass",pass);
-            String url= MessageFormat.format(mLoginUrl,user,pass);
+            String url= MessageFormat.format(mLoginUrl,user,pass,dtype,time);
             Log.e("url",url);
             StringBuffer buffer=new StringBuffer();
             try{
@@ -206,7 +220,7 @@ public class Login extends AppCompatActivity {
     }
 
     public class GetLoginResultByPhoneTask extends AsyncTask<String,Void,String>{
-        private String mLoginUrl="https://huli.kylin1221.com/apis/login.php?type=phone&username={0}&password={1}";
+        private String mLoginUrl="https://huli.kylin1221.com/apis/login.php?type=phone&username={0}&password={1}&dtype={2}&time={3}";
         public JSONObject jsonObject=new JSONObject();
         //OnData
         @Override
@@ -214,9 +228,11 @@ public class Login extends AppCompatActivity {
             String[] params=strings[0].split("/");
             String user=params[0];
             String pass=params[1];
+            String dtype=params[2];
+            String time=params[3];
             Log.e("user",user);
             Log.e("pass",pass);
-            String url= MessageFormat.format(mLoginUrl,user,pass);
+            String url= MessageFormat.format(mLoginUrl,user,pass,dtype,time);
             Log.e("url",url);
             StringBuffer buffer=new StringBuffer();
             /*HttpReqData reqData=new HttpReqData(url);
@@ -337,7 +353,28 @@ public class Login extends AppCompatActivity {
         }
         return Pattern.matches(regex, phoneNumber);
     }
+    public void getDateTime(){
+        Calendar calendar = Calendar.getInstance();//取得当前时间的年月日 时分秒
 
+
+        year = calendar.get(Calendar.YEAR);
+
+
+        month = calendar.get(Calendar.MONTH)+1;
+
+
+        day = calendar.get(Calendar.DAY_OF_MONTH);
+
+
+        hour = calendar.get(Calendar.HOUR_OF_DAY);
+
+
+        minute = calendar.get(Calendar.MINUTE);
+
+
+        second = calendar.get(Calendar.SECOND);
+
+    }
     private static String md5(String input) throws NoSuchAlgorithmException{
         String result=input;
         if(input!=null){
