@@ -75,7 +75,8 @@ public class MainActivity extends AppCompatActivity {
 
         viewFlipper=findViewById(R.id.VF_NotifyBar2);
         RadioButton myInfoBtn=findViewById(R.id.RB_myInfo_Main),orderMarketBtn=findViewById(R.id.RB_orderMarket_Main);
-        ImageButton closeAnnouncement=findViewById(R.id.IB_closeAnnouncement_Main),nowOrderBtn=findViewById(R.id.IB_orderNow_Main),myOrderBtn=findViewById(R.id.IB_myOrder_Main);
+        ImageButton closeAnnouncement=findViewById(R.id.IB_closeAnnouncement_Main);
+        Button nowOrderBtn=findViewById(R.id.IB_orderNow_Main),myOrderBtn=findViewById(R.id.IB_myOrder_Main);
         LinearLayout announceLayout=findViewById(R.id.LL_Announce_Main);
         closeAnnouncement.setOnClickListener(click->{
             announceLayout.setVisibility(View.GONE);

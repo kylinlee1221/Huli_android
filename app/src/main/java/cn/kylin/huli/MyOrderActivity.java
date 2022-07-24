@@ -197,9 +197,10 @@ public class MyOrderActivity extends AppCompatActivity {
                             String orderStart=jsonObject.getString("orderstart");
                             String orderStatus=jsonObject.getString("status");
                             String cusPhone=jsonObject.getString("cusphone");
+                            String orderfrom=jsonObject.getString("orderfrom");
                             int status=Integer.parseInt(orderStatus);
                             if(status>1) {
-                                Order tmpOrder = new Order(id, ordername, orderplace, orderend, orderStart, orderprice, orderpaid, orderStatus,cusPhone);
+                                Order tmpOrder = new Order(id, ordername, orderplace, orderend, orderStart, orderprice, orderpaid, orderStatus,cusPhone,orderfrom);
                                 orderArrayList.add(tmpOrder);
                             }
                             if(status==2){
@@ -351,9 +352,10 @@ public class MyOrderActivity extends AppCompatActivity {
                     String orderStart=jsonObject.getString("orderstart");
                     String orderStatus=jsonObject.getString("status");
                     String cusPhone=jsonObject.getString("cusphone");
+                    String orderfrom=jsonObject.getString("orderfrom");
                     int status=Integer.parseInt(orderStatus);
                     if(status>1) {
-                        Order tmpOrder = new Order(id, ordername, orderplace, orderend, orderStart, orderprice, orderpaid, orderStatus,cusPhone);
+                        Order tmpOrder = new Order(id, ordername, orderplace, orderend, orderStart, orderprice, orderpaid, orderStatus,cusPhone,orderfrom);
                         orderArrayList.add(tmpOrder);
                     }
                 }
@@ -474,7 +476,7 @@ public class MyOrderActivity extends AppCompatActivity {
                 callPhone.setData(phoneNum);
                 startActivity(callPhone);
             });
-            rowMessage.setText(getResources().getString(R.string.order_name_detail)+thisRow.getOrdername()+"\n"+getResources().getString(R.string.order_money_detail)+thisRow.getOrderprice()+"\n"+getResources().getString(R.string.order_paid_detail)+thisRow.getOrderpaid()+"\n"+getResources().getString(R.string.order_place_detail)+thisRow.getOrderplace()+"\n"+getResources().getString(R.string.order_phone_detail)+thisRow.getOrderPhone()+"\n"+getResources().getString(R.string.order_start_detail)+thisRow.getOrderStart()+"\n"+getResources().getString(R.string.order_end_detail)+thisRow.getOrderDate());
+            rowMessage.setText(getResources().getString(R.string.order_name_detail)+thisRow.getOrdername()+"\n"+getResources().getString(R.string.order_from_detail)+thisRow.getOrderFrom()+"\n"+getResources().getString(R.string.order_money_detail)+thisRow.getOrderprice()+"\n"+getResources().getString(R.string.order_paid_detail)+thisRow.getOrderpaid()+"\n"+getResources().getString(R.string.order_place_detail)+thisRow.getOrderplace()+"\n"+getResources().getString(R.string.order_phone_detail)+thisRow.getOrderPhone()+"\n"+getResources().getString(R.string.order_start_detail)+thisRow.getOrderStart()+"\n"+getResources().getString(R.string.order_end_detail)+thisRow.getOrderDate());
             rowMessage.setTextColor(Color.BLACK);
             rowMessage.setTextAlignment(View.TEXT_ALIGNMENT_GRAVITY);
             return rowView;

@@ -15,6 +15,8 @@
     <string name="add_order_btn">Add order</string>
     <string name="now_order_btn">Now order</string>
     <string name="on_work_btn">Check it</string>
+    <string name="order_btn">Order(s)</string>
+    <string name="my_info_btn">My info</string>
     <string name="order_manage_btn">Order manage</string>
     <string name="contact_btn">Contact</string>
     <string name="edit_btn">edit</string>
@@ -65,6 +67,7 @@
     <string name="order_start_detail">Start time:</string>
     <string name="order_end_detail">End time:</string>
     <string name="order_status_detail">Status:</string>
+    <string name="order_from_detail">Order From:</string>
     <string name="announce_info_detail">Info:</string>
     <string name="user_info_fullname">Fullname:</string>
     <string name="user_info_telephone">Telephone:</string>

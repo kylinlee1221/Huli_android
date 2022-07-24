@@ -50,7 +50,22 @@
             android:layout_weight="1"
             android:background="@android:color/transparent"
             android:layout_gravity="center_vertical"
-            android:id="@+id/IB_myOrder_Main"/>
+
+            android:visibility="gone"
+            tools:visibility="gone"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/order"
+            android:alpha="255"
+            android:text="@string/order_btn"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:textColor="@android:color/black"
+            android:id="@+id/IB_myOrder_Main"
+            android:background="@android:color/transparent"/>
+
 
         <ImageButton
             android:layout_width="wrap_content"
@@ -59,7 +74,21 @@
             android:layout_weight="1"
             android:background="@android:color/transparent"
             android:layout_gravity="center_vertical"
-            android:id="@+id/IB_orderNow_Main"/>
+
+            android:visibility="gone"
+            tools:visibility="gone"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/order_now"
+            android:alpha="255"
+            android:text="@string/now_order_btn"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:textColor="@android:color/black"
+            android:id="@+id/IB_orderNow_Main"
+            android:background="@android:color/transparent"/>
 
 
         
@@ -83,16 +112,24 @@
                 android:drawableTop="@drawable/order_market_small"
                 android:button="@null"
                 android:id="@+id/RB_orderMarket_Main"
-                android:layout_weight="1"/>
+                android:text="@string/order_market_btn"
+                android:textAlignment="center"
+                android:textColor="@android:color/black"
+                android:layout_weight="1"
+                tools:ignore="RtlCompat" />
 
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:drawableTop="@drawable/male_small"
+                android:text="@string/my_info_btn"
+                android:textAlignment="center"
+                android:textColor="@android:color/black"
                 android:button="@null"
                 android:id="@+id/RB_myInfo_Main"
-                android:layout_weight="1"/>
+                android:layout_weight="1"
+                tools:ignore="RtlCompat" />
 
 
 

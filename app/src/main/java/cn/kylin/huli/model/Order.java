@@ -9,6 +9,7 @@ public class Order {
     private String orderStart;
     private String orderStatus;
     private String orderPhone;
+    private String orderFrom;
     private Long id;
 
     public Order(Long id,String ordername,String orderplace,String orderDate,String orderStart,Double orderprice,Double orderpaid,String orderStatus,String orderPhone){
@@ -21,6 +22,19 @@ public class Order {
         this.orderpaid=orderpaid;
         this.orderStatus=orderStatus;
         this.orderPhone=orderPhone;
+    }
+
+    public Order(Long id,String ordername,String orderplace,String orderDate,String orderStart,Double orderprice,Double orderpaid,String orderStatus,String orderPhone,String orderFrom){
+        this.id=id;
+        this.ordername=ordername;
+        this.orderplace=orderplace;
+        this.orderDate=orderDate;
+        this.orderprice=orderprice;
+        this.orderStart=orderStart;
+        this.orderpaid=orderpaid;
+        this.orderStatus=orderStatus;
+        this.orderPhone=orderPhone;
+        this.orderFrom=orderFrom;
     }
 
     public Order(Long id,String ordername,String orderplace,String orderDate,Double orderprice,Double orderpaid,String orderStatus,String orderPhone){
@@ -62,6 +76,14 @@ public class Order {
         this.orderprice=orderprice;
         this.orderpaid=orderpaid;
         this.orderStatus=orderStatus;
+    }
+
+    public String getOrderFrom() {
+        return orderFrom;
+    }
+
+    public void setOrderFrom(String orderFrom) {
+        this.orderFrom = orderFrom;
     }
 
     public String getOrderStart() {
